@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Timezones from "../constants/zone";
-import { validateField } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField } from "../utils/util";
 import PhoneInput from "react-phone-input-2";
 
 const TabTwo = () => {
@@ -50,7 +50,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Who would you like to text?</label>
           <input
-            classNameName={error?.friendName && "error"}
+            className={error?.friendName && "error"}
             value={friendName}
             onChange={(e) => setFriendName(e.target.value)}
             type="text"
@@ -58,7 +58,7 @@ const TabTwo = () => {
             onBlur={() => handleError("friendName", friendName)}
           />
           {
-            <span classNameName={error?.friendName ? "error" : "error2"}>
+            <span className={error?.friendName ? "error" : "error2"}>
               {error.friendName ? error?.friendName : "-"}
             </span>
           }
@@ -66,7 +66,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>What's their mobile number?</label>
           <PhoneInput
-            inputclassName={error?.friendMobile && "error"}
+            inputClass={error?.friendMobile && "error"}
             // country={"us"}
             value={friendMobile}
             onChange={(value) => setFriendMobile(value)}
@@ -75,7 +75,7 @@ const TabTwo = () => {
             onBlur={() => handleError("friendMobile", friendMobile)}
           />
           {
-            <span classNameName={error?.friendMobile ? "error" : "error2"}>
+            <span className={error?.friendMobile ? "error" : "error2"}>
               {error.friendMobile ? error?.friendMobile : "-"}
             </span>
           }
@@ -85,14 +85,14 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Text Message to Send:</label>
           <textarea
-            classNameName={error?.msg && "error"}
+            className={error?.msg && "error"}
             value={msg}
             onChange={(e) => setMsg(e.target.value)}
             placeholder="Enter Your Message"
             onBlur={() => handleError("msg", msg)}
           ></textarea>
           {
-            <span classNameName={error?.msg ? "error" : "error2"}>
+            <span className={error?.msg ? "error" : "error2"}>
               {error.msg ? error?.msg : "-"}
             </span>
           }
@@ -102,15 +102,18 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Days to Send:</label>
           <input
-            classNameName={error?.days && "error"}
+            className={error?.days && "error"}
             value={days}
             onChange={(e) => setDays(e.target.value)}
             type="text"
             placeholder="Examples: Weekdays, Wed-Sat, etc."
-            onBlur={() => handleError("days", days)}
+            onBlur={() => {
+              handleError("days", days);
+              setDays(parseDaysInput(days));
+            }}
           />
           {
-            <span classNameName={error?.days ? "error" : "error2"}>
+            <span className={error?.days ? "error" : "error2"}>
               {error.days ? error?.days : "-"}
             </span>
           }
@@ -118,15 +121,18 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Time to Send:</label>
           <input
-            classNameName={error?.time && "error"}
+            className={error?.time && "error"}
             value={time}
             onChange={(e) => setTime(e.target.value)}
             type="text"
             placeholder="Example: 8:00 AM"
-            onBlur={() => handleError("time", time)}
+            onBlur={() => {
+              handleError("time", time);
+              setTime(parseTimeInput(time)?.value);
+            }}
           />
           {
-            <span classNameName={error?.time ? "error" : "error2"}>
+            <span className={error?.time ? "error" : "error2"}>
               {error.time ? error?.time : "-"}
             </span>
           }
@@ -134,7 +140,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Their Time Zone:</label>
           <select
-            classNameName={error?.timezone && "error"}
+            className={error?.timezone && "error"}
             value={timeZone}
             onChange={(e) => setTimeZone(e.target.value)}
             onBlur={() => handleError("timezone", timeZone)}
@@ -147,7 +153,7 @@ const TabTwo = () => {
             ))}
           </select>
           {
-            <span classNameName={error?.timezone ? "error" : "error2"}>
+            <span className={error?.timezone ? "error" : "error2"}>
               {error.timezone ? error?.timezone : "-"}
             </span>
           }
@@ -157,7 +163,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Your Name:</label>
           <input
-            classNameName={error?.name && "error"}
+            className={error?.name && "error"}
             value={name}
             onChange={(e) => setName(e.target.value)}
             type="text"
@@ -165,7 +171,7 @@ const TabTwo = () => {
             onBlur={() => handleError("name", name)}
           />
           {
-            <span classNameName={error?.name ? "error" : "error2"}>
+            <span className={error?.name ? "error" : "error2"}>
               {error.name ? error?.name : "-"}
             </span>
           }
@@ -173,7 +179,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Your Email:</label>
           <input
-            classNameName={error?.email && "error"}
+            className={error?.email && "error"}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
@@ -181,7 +187,7 @@ const TabTwo = () => {
             onBlur={() => handleError("email", email)}
           />
           {
-            <span classNameName={error?.email ? "error" : "error2"}>
+            <span className={error?.email ? "error" : "error2"}>
               {error.email ? error?.email : "-"}
             </span>
           }
@@ -189,7 +195,7 @@ const TabTwo = () => {
         <div className="form-control">
           <label>Your Mobile Number:</label>
           <PhoneInput
-            inputclassName={error?.phone && "error"}
+            inputClass={error?.phone && "error"}
             // country={"us"}
             value={phone}
             onChange={(value) => setPhone(value)}
@@ -198,7 +204,7 @@ const TabTwo = () => {
             onBlur={() => handleError("phone", phone)}
           />
           {
-            <span classNameName={error?.phone ? "error" : "error2"}>
+            <span className={error?.phone ? "error" : "error2"}>
               {error.phone ? error?.phone : "-"}
             </span>
           }
