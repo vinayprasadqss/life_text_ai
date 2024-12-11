@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Timezones from "../constants/zone";
 import { parseDaysInput, parseTimeInput, validateField } from "../utils/util";
 import PhoneInput from "react-phone-input-2";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const TabTwo = () => {
   const [friendName, setFriendName] = useState("");
@@ -209,6 +210,11 @@ const TabTwo = () => {
             </span>
           }
         </div>
+      </div>
+      <div style={{ textAlign: "center", marginTop: "-10px",  marginBottom: "20px", display:"block" }}>
+        <ReCAPTCHA
+            sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
+        />
       </div>
       <button>Schedule Message</button>
     </div>

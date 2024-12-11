@@ -9,6 +9,8 @@ import {
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
+import ReCAPTCHA from "react-google-recaptcha";
+
 const TabOne = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -176,8 +178,13 @@ const TabOne = () => {
             </span>
           }
         </div>
-      </div>
 
+      </div>
+      <div style={{ textAlign: "center", marginTop: "-10px",  marginBottom: "20px", display:"block" }}>
+        <ReCAPTCHA
+            sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
+        />
+      </div>
       <button onClick={handleSubmit}>Schedule Message</button>
     </div>
   );
