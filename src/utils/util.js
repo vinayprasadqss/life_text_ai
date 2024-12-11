@@ -3,8 +3,19 @@ import {
   validatePhoneNumberLength,
 } from "libphonenumber-js";
 
+const daysMap = {
+  mon: "Monday",
+  tue: "Tuesday",
+  wed: "Wednesday",
+  thu: "Thursday",
+  fri: "Friday",
+  sat: "Saturday",
+  sun: "Sunday",
+};
+
 export const parseDaysInput = (input) => {
   const normalizedInput = input.trim().toLowerCase();
+
 
   switch (normalizedInput) {
     case "monday":
@@ -50,17 +61,16 @@ export const parseDaysInput = (input) => {
       return new Date().toDateString(); // Returns the current date as a string
 
     default:
+      if (/^((mon|tue|wed|thu|fri|sat|sun),)*(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput)) {
+        return normalizedInput
+          .split(",")
+          .map((day) => daysMap[day.trim().toLowerCase()])
+          .join(", ");
+      }
+
       // Handle day ranges like mon-tue, tue-wed, etc., and their reverse forms
       if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput)) {
-        const daysMap = {
-          mon: "Monday",
-          tue: "Tuesday",
-          wed: "Wednesday",
-          thu: "Thursday",
-          fri: "Friday",
-          sat: "Saturday",
-          sun: "Sunday",
-        };
+ 
 
         const [start, end] = normalizedInput
             .split("-")
@@ -73,15 +83,7 @@ export const parseDaysInput = (input) => {
 
       // Handle reverse day ranges like tue-mon
       if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput.split("-").reverse().join("-"))) {
-        const daysMap = {
-          mon: "Monday",
-          tue: "Tuesday",
-          wed: "Wednesday",
-          thu: "Thursday",
-          fri: "Friday",
-          sat: "Saturday",
-          sun: "Sunday",
-        };
+ 
 
         const [start, end] = normalizedInput
             .split("-")

@@ -173,6 +173,37 @@ section {
         font-size: 1rem;
       }
     }
+    .wrapper2{
+      width: 970px;
+      max-height:max-content;
+      height: fit-content;
+      background: white;
+      border-radius: 10px;
+      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      max-width: 1000px;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #ffcda5;
+      gap: 20px;
+      p{
+        color: #B9B9B9;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+      button {
+        width: fit-content;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        background: #3ef127;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        font-size: 1rem;
+      }
+    }
   }
 }
 

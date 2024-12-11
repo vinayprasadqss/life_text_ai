@@ -3,6 +3,7 @@ import Timezones from "../constants/zone";
 import { parseDaysInput, parseTimeInput, validateField } from "../utils/util";
 import PhoneInput from "react-phone-input-2";
 import ReCAPTCHA from "react-google-recaptcha";
+import axios from "axios";
 
 const TabTwo = () => {
   const [friendName, setFriendName] = useState("");
@@ -16,6 +17,7 @@ const TabTwo = () => {
   const [phone, setPhone] = useState("");
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [recaptchaVerified, setRecaptchaVerified] = useState(false);
 
   const handleError = (field, value) => {
     const error = validateField(field, value);
@@ -26,9 +28,40 @@ const TabTwo = () => {
   };
 
   const handleSubmit = async () => {
+    if (!recaptchaVerified) {
+      alert("Please verify the reCAPTCHA.");
+      return;
+    }
+    // Validate required fields
+    const requiredFields = {
+      name,
+      email,
+      phone,
+      msg,
+      days,
+      time,
+      timeZone,
+      friendName,
+      friendMobile,
+    };
+    const emptyFields = Object.entries(requiredFields).filter(
+      ([key, value]) => value === ""
+    );
+
+    if (emptyFields.length > 0) {
+      emptyFields.forEach(([key]) =>
+        handleError(key === "timeZone" ? "timezone" : key, ``)
+      );
+      return;
+    }
+
     try {
-      console.log({
-        data: {
+      setLoading(true);
+
+      // Dummy API call using axios
+      const response = await axios.post(
+        "https://jsonplaceholder.typicode.com/posts",
+        {
           name,
           email,
           phone,
@@ -38,11 +71,28 @@ const TabTwo = () => {
           timeZone,
           friendName,
           friendMobile,
-        },
-      });
+        }
+      );
+
+      if (response.status === 201) {
+        alert("Message scheduled successfully!");
+        console.log("API Response:", response.data);
+        setTab(3);
+      } else {
+        alert("Failed to schedule the message. Please try again.");
+        console.error("API Error:", response.data);
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Error during API call:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleRecaptcha = (value) => {
+    console.log("reCAPTCHA Verified:", value);
+    setRecaptchaVerified(!!value); // Set to true if value exists
   };
 
   return (
@@ -211,12 +261,22 @@ const TabTwo = () => {
           }
         </div>
       </div>
-      <div style={{ textAlign: "center", marginTop: "-5px",  marginBottom: "20px", display:"block" }}>
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "-5px",
+          marginBottom: "20px",
+          display: "block",
+        }}
+      >
         <ReCAPTCHA
-            sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
+          sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
+          onChange={handleRecaptcha}
         />
       </div>
-      <button>Schedule Message</button>
+      <button onClick={handleSubmit} disabled={loading}>
+        {loading ? "Submitting..." : "Schedule Message"}
+      </button>
     </div>
   );
 };
