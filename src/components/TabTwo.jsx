@@ -211,7 +211,7 @@ const TabTwo = () => {
           }
         </div>
       </div>
-      <div style={{ textAlign: "center", marginTop: "-10px",  marginBottom: "20px", display:"block" }}>
+      <div style={{ textAlign: "center", marginTop: "-5px",  marginBottom: "20px", display:"block" }}>
         <ReCAPTCHA
             sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
         />
