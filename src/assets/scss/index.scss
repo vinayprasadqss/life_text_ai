@@ -40,7 +40,9 @@ section {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-
+    background-color: #fe9e40;
+    min-height: 100vh;
+    height: auto;
     .logo {
       width: 220px;
 
@@ -84,7 +86,7 @@ section {
 
     .wrapper {
       width: 970px;
-      max-height: calc(100vh - 250px);
+      max-height:max-content;
       height: fit-content;
       background: white;
       border-radius: 10px;
@@ -171,5 +173,57 @@ section {
         font-size: 1rem;
       }
     }
+  }
+}
+
+@media all and (max-width: 992px){
+  section.main .wrapper{
+    max-width: 96vw;
+  }
+}
+
+@media all and (max-width: 767px){
+  section.main .wrapper{
+    padding: 1rem;
+  }
+  section.main .wrapper .form-wrap{
+    flex-wrap: wrap;
+  }
+}
+
+@media all and (max-width: 414px){
+  section.main{
+    padding-top: 20px;
+  }
+  section.main .logo {
+    width: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  section.main .logo img {
+    width: 130px;
+  }
+  section.main h1 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+  }
+  section.main .tab ul li {
+    padding: 5px 16px;
+    font-size: 14px;
+  }
+  section.main .wrapper .form-wrap{
+    gap: 5px;
+  }
+  section.main .wrapper .form-wrap .form-control .error, section.main .wrapper .form-wrap .form-control .error2{
+    font-size: 12px;
+    margin-top: 0;
+  }
+  section.main .wrapper .form-wrap .form-control label{
+    font-size: 14px;
+  }
+  section.main .wrapper .form-wrap .form-control input, section.main .wrapper .form-wrap .form-control textarea, section.main .wrapper .form-wrap .form-control select{
+    font-size: 14px;
   }
 }
