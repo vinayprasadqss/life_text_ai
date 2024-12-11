@@ -33,7 +33,6 @@ export const parseDaysInput = (input) => {
       return "Friday";
     case "saturday":
     case "sat":
-    case "s":
     case "sa":
       return "Saturday";
     case "sunday":
@@ -43,27 +42,61 @@ export const parseDaysInput = (input) => {
       return "Sunday";
     case "everyday":
       return "All 7 days of the week";
-    // [
-    //   "Monday",
-    //   "Tuesday",
-    //   "Wednesday",
-    //   "Thursday",
-    //   "Friday",
-    //   "Saturday",
-    //   "Sunday",
-    // ];
     case "weekdays":
       return "Monday - Friday";
-    //  ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     case "weekends":
       return "Saturday & Sunday";
-    //  ["Saturday", "Sunday"];
     case "today":
       return new Date().toDateString(); // Returns the current date as a string
+
     default:
+      // Handle day ranges like mon-tue, tue-wed, etc., and their reverse forms
+      if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput)) {
+        const daysMap = {
+          mon: "Monday",
+          tue: "Tuesday",
+          wed: "Wednesday",
+          thu: "Thursday",
+          fri: "Friday",
+          sat: "Saturday",
+          sun: "Sunday",
+        };
+
+        const [start, end] = normalizedInput
+            .split("-")
+            .map((day) => daysMap[day.toLowerCase()]);
+
+        if (start && end) {
+          return `${start} to ${end}`;
+        }
+      }
+
+      // Handle reverse day ranges like tue-mon
+      if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput.split("-").reverse().join("-"))) {
+        const daysMap = {
+          mon: "Monday",
+          tue: "Tuesday",
+          wed: "Wednesday",
+          thu: "Thursday",
+          fri: "Friday",
+          sat: "Saturday",
+          sun: "Sunday",
+        };
+
+        const [start, end] = normalizedInput
+            .split("-")
+            .reverse()
+            .map((day) => daysMap[day.toLowerCase()]);
+
+        if (start && end) {
+          return `${start} to ${end}`;
+        }
+      }
+
       return ""; // Handle unrecognized input
   }
 };
+
 
 export const parseTimeInput = (input) => {
   // Normalize input by trimming spaces and converting to lowercase
