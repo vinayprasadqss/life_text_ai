@@ -110,8 +110,8 @@ export const parseTimeInput = (input) => {
     return { msg: "", value: formatTo12Hour(hours, minutes) };
   }
 
-  // Match patterns like "8am", "8:00 am", "08:00 AM"
-  const timeRegex = /^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i;
+  // Match patterns like "8am", "8:00 am", "08:00 AM", "8:3"
+  const timeRegex = /^(\d{1,2})(?::(\d{1,2}))?\s*(am|pm)?$/i; // Allow single-digit minutes
   const match = timeRegex.exec(normalizedInput);
 
   if (match) {
@@ -121,7 +121,6 @@ export const parseTimeInput = (input) => {
 
     // Handle invalid hour or minute range
     if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-      //   return "Invalid time input";
       return { msg: "Invalid time format", value: input };
     }
 
@@ -130,14 +129,6 @@ export const parseTimeInput = (input) => {
       period = period.toLowerCase();
       if (period === "pm" && hours !== 12) hours += 12;
       if (period === "am" && hours === 12) hours = 0;
-    }
-
-    // Convert 24-hour input to 12-hour if no AM/PM is provided
-    if (!period && hours >= 13) {
-      period = "pm";
-      hours -= 12;
-    } else if (!period) {
-      period = hours === 12 ? "pm" : "am";
     }
 
     return { msg: "", value: formatTo12Hour(hours, minutes) };
@@ -152,6 +143,7 @@ function formatTo12Hour(hours, minutes) {
   const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
   return `${adjustedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
+
 
 // Function to validate phone numbers
 export const validatePhoneNumber = (phoneNumber) => {
