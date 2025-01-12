@@ -258,3 +258,53 @@ section {
     font-size: 14px;
   }
 }
+.tokenREqBtn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 16px;
+}
+.modelOverlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  .modelBox{
+    width: 600px;
+    height: 350px;
+    background: #fff;
+    border-radius: 5px;
+    .head{
+      height: 40px;
+      width: 100%;
+      position: relative;
+      .closeIcon{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+    }
+    .body{
+      width: 100%;
+      padding: 20px;
+      h1{
+        font-size: 15px;
+        width: 100%;
+        font-weight: normal;
+        margin-bottom: 5px;
+      }
+      textarea{
+        width: 100%;
+        padding: 10px;
+      }
+    }
+  }
+}

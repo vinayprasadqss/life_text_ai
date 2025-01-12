@@ -6,6 +6,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
 import ReCAPTCHA from "react-google-recaptcha";
+import RequestToken from "./TokkenRequest";
 
 const TabOne = ({setTab}) => {
   const [name, setName] = useState("");
@@ -89,6 +90,7 @@ const TabOne = ({setTab}) => {
           return;
       }
 
+      const newToken = localStorage.getItem('tokenRequestValue');
 
     const url = "https://ra-user-staging.azurewebsites.net/v1/journeys/121/prompts";
     const promptSchedule = transformPayload(timeZone, days, time);
@@ -105,7 +107,7 @@ const TabOne = ({setTab}) => {
         setLoading(true);
         const response = await axios.post(url, payload, {
             headers: {
-                Authorization: `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkNDMTQzOTI3REFEODlDMkIyREJBNjM2NTg1QTBBQkJCIiwidHlwIjoiYXQrand0IiwiY3R5IjoiSldUIn0.eyJuYmYiOjE3MzY2ODc0NDcsImV4cCI6MTczNjY4ODA0NywiaXNzIjoiaHR0cHM6Ly9yYS1pZC1zdGFnaW5nLmF6dXJld2Vic2l0ZXMubmV0IiwiYXVkIjoiaHR0cHM6Ly9yYS1pZC1zdGFnaW5nLmF6dXJld2Vic2l0ZXMubmV0L3Jlc291cmNlcyIsImNsaWVudF9pZCI6ImNsaWVudCIsInN1YiI6IjUyIiwiYXV0aF90aW1lIjoxNzM2NDEyMDI1LCJpZHAiOiJsb2NhbCIsIm5hbWUiOiJQYW5rYWogV2FkaHdhIiwiZW1haWwiOiJwYW5rYWpAcXNzdGVjaG5vc29mdC5jb20iLCJzcyI6IkpWQ0M2VDRYVjRLRUJFMkZLVTJFRTZKQVBKSVJSSlBGIiwicm9sZSI6WyJjaGFtcGlvbiIsImNhcmVnaXZlciJdLCJqdGkiOiIyQ0E4Qzc5MDFBRDMwREIzRjk4QzQyMDkxNkJBOERCNSIsInNpZCI6Ijk5RkUxRjBDMUUxRTY1QUIyQzQwRUM4RUI4OEFEQ0IyIiwiaWF0IjoxNzM2Njg3NDQ3LCJzY29wZSI6WyJvcGVuaWQiLCJwcm9maWxlIiwiY2hhbXBpb25hcGkiLCJjYXJlZ2l2ZXJhcGkiLCJyb2xlcyIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJwd2QiXX0.hm4QeSASRQ-SBip-jdCsAO-UI8lKuD8fMYqmN4ss1WfNtC8Ys6I7VnSwX26DwvR4mEpKE-iBYcFyjFeX5LthZH7dRoY6gPEJmUFYvFBd843acjDbEnElAOYt5vW0bkE5cWIDYXnR4nln1SAN8SMCRpiqNsLefA5sts_9SS_zpDeCvEfkmNBUaNTcSLlmZpJYpgKpSrmFvDXaJjL3o8ORBLvvveBa5Rr6F-S45OlcY5fbR-EV7uFSdebBP_ArFYosQtmlKMEYilvc3ImDKgpRRzgskqa72yu6QGio4CqPnXilfLJYzg4XirBRI9_oWUVOjQTfRbSDhsMkCe_RYW3f-w`,
+                Authorization: `Bearer ${newToken}`,
                 "Content-Type": "application/json",
             },
         });
@@ -130,8 +132,12 @@ const TabOne = ({setTab}) => {
     setRecaptchaVerified(!!value); // Set to true if value exists
   };
 
+
+  const [tokenRequest, setTokenRequest] = useState(false);
   return (
     <div className="wrapper">
+        <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
+        {tokenRequest && <RequestToken tokenRequest={tokenRequest} setTokenRequest={setTokenRequest}/>}
       <div className="form-wrap">
         <div className="form-control">
           <label>Your First Name:</label>
