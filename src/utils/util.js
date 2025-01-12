@@ -2,6 +2,9 @@ import {
   isValidPhoneNumber,
   validatePhoneNumberLength,
 } from "libphonenumber-js";
+import moment from 'moment-timezone';
+
+
 
 const daysMap = {
   mon: "Monday",
@@ -12,6 +15,41 @@ const daysMap = {
   sat: "Saturday",
   sun: "Sunday",
 };
+export function transformPayload(timeZone, days, times) {
+  // Map common timezone names to IANA timezone names
+  const timezoneMap = {
+    "Eastern Standard Time": "America/New_York"
+  };
+
+  // Use the mapped timezone or the provided one
+  const timeZone1 = timezoneMap[timeZone] || timeZone;
+
+  // Get the current date in the target timezone
+  const currentDate = moment().tz(timeZone);
+
+  // Determine the next occurrence of the specified day (e.g., Monday)
+  const targetDay = moment().tz(timeZone).day(days);
+
+  // If today is the day but the time has passed, move to next week's occurrence
+  if (targetDay.isBefore(currentDate, 'day') ||
+      (targetDay.isSame(currentDate, 'day') && moment(times, "h:mm A").isBefore(currentDate))) {
+    targetDay.add(1, 'weeks');
+  }
+
+  // Combine the target day and time
+  const dateTime = moment.tz(
+      `${targetDay.format('YYYY-MM-DD')} ${times}`,
+      "YYYY-MM-DD h:mm A",
+      timeZone1
+  );
+
+  // Construct the transformed payload
+  return {
+      date: dateTime.toISOString(),
+      timeOfDay: dateTime.format('HH:mm:ss'),
+      isEnabled: true
+  };
+}
 
 export const parseDaysInput = (input) => {
   const normalizedInput = input.trim().toLowerCase();

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField, transformPayload } from "../utils/util";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
@@ -74,6 +74,56 @@ const TabOne = ({setTab}) => {
       setLoading(false);
     }
   };
+
+  const handleSubmit2 = async () => {
+      if (!recaptchaVerified) {
+          alert("Please verify the reCAPTCHA.");
+          return;
+      }
+      // Validate required fields
+      const requiredFields = { msg, days, time, timeZone };
+      const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
+
+      if (emptyFields.length > 0) {
+          emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
+          return;
+      }
+
+
+    const url = "https://ra-user-staging.azurewebsites.net/v1/journeys/121/prompts";
+    const promptSchedule = transformPayload(timeZone, days, time);
+    const payload = {
+        message: msg,
+        workflowType: 5,
+        followUp: 0,
+        isEnabled: true,
+        promptSchedule,
+        promptMediaIds: [],
+    };
+
+    try {
+        setLoading(true);
+        const response = await axios.post(url, payload, {
+            headers: {
+                Authorization: `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkNDMTQzOTI3REFEODlDMkIyREJBNjM2NTg1QTBBQkJCIiwidHlwIjoiYXQrand0IiwiY3R5IjoiSldUIn0.eyJuYmYiOjE3MzY2Nzc0NjMsImV4cCI6MTczNjY3ODA2MywiaXNzIjoiaHR0cHM6Ly9yYS1pZC1zdGFnaW5nLmF6dXJld2Vic2l0ZXMubmV0IiwiYXVkIjoiaHR0cHM6Ly9yYS1pZC1zdGFnaW5nLmF6dXJld2Vic2l0ZXMubmV0L3Jlc291cmNlcyIsImNsaWVudF9pZCI6ImNsaWVudCIsInN1YiI6IjUyIiwiYXV0aF90aW1lIjoxNzM2NDEyMDI1LCJpZHAiOiJsb2NhbCIsIm5hbWUiOiJQYW5rYWogV2FkaHdhIiwiZW1haWwiOiJwYW5rYWpAcXNzdGVjaG5vc29mdC5jb20iLCJzcyI6IkpWQ0M2VDRYVjRLRUJFMkZLVTJFRTZKQVBKSVJSSlBGIiwicm9sZSI6WyJjaGFtcGlvbiIsImNhcmVnaXZlciJdLCJqdGkiOiI0RjVDQkRCQTUwMjg5MDQ0RDBCQkFEQUVFQjYxOTZFQyIsInNpZCI6Ijk5RkUxRjBDMUUxRTY1QUIyQzQwRUM4RUI4OEFEQ0IyIiwiaWF0IjoxNzM2NjY1NjIwLCJzY29wZSI6WyJvcGVuaWQiLCJwcm9maWxlIiwiY2hhbXBpb25hcGkiLCJjYXJlZ2l2ZXJhcGkiLCJyb2xlcyIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJwd2QiXX0.KSJygelh5Mi8Ys0NnBa3NtR2XnbAbzYjG61YV_z0WJJPqxnTjymCqIQ6RTPuC1XpmPG3pp5scIqiGMVESEnKrT5vg0xGiy7iMZKyvpEn6fqSBw4754vvt0U6GRTshc1GuFoPZpqZ2Jp8BvsP4PyhueFBe62tlpS9GngO3fnwO3fmT3WzXquyP4HxXJxmxAPOmGlPL3B3e3OqA3BY1E-mR-wtgMJAdB1sgyJQUmKxQPaxjRDfo2tUoS6ZXiiza4tAViHJVSmyMlA5rs_p0prLXGXOvzRvNuuXPbQsJpzNCnwkaXutro8zjdw7Q_Juz0RtFbtH-yoT8FHaa2QJOW5FvQ`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("API Response:", response.data);
+        if (response.status === 200) {
+            alert("Message scheduled successfully!");
+            console.log("API Response:", response.data);
+            setTab(3)
+        } else {
+            alert("Failed to schedule the message. Please try again.");
+            console.error("API Error:", response.data);
+        }
+    } catch (error) {
+        alert(error.response || error.message)
+        console.error("API Error:", error.response || error.message);
+    }
+};
 
   const handleRecaptcha = (value) => {
     console.log("reCAPTCHA Verified:", value);
@@ -223,7 +273,7 @@ const TabOne = ({setTab}) => {
           onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={handleSubmit} disabled={loading}>
+      <button onClick={handleSubmit2} disabled={loading}>
         {loading ? "Submitting..." : "Schedule Message"}
       </button>
     </div>
