@@ -15,42 +15,136 @@ const daysMap = {
   sat: "Saturday",
   sun: "Sunday",
 };
+// export function transformPayload(timeZone, days, times) {
+//   // Map common timezone names to IANA timezone names
+//   const timezoneMap = {
+//     "Eastern Standard Time": "America/New_York"
+//   };
+//
+//   // Use the mapped timezone or the provided one
+//   const timeZone1 = timezoneMap[timeZone] || timeZone;
+//
+//   // Get the current date in the target timezone
+//   const currentDate = moment().tz(timeZone);
+//
+//   // Determine the next occurrence of the specified day (e.g., Monday)
+//   const targetDay = moment().tz(timeZone).day(days);
+//
+//   // If today is the day but the time has passed, move to next week's occurrence
+//   if (targetDay.isBefore(currentDate, 'day') ||
+//       (targetDay.isSame(currentDate, 'day') && moment(times, "h:mm A").isBefore(currentDate))) {
+//     targetDay.add(1, 'weeks');
+//   }
+//
+//   // Combine the target day and time
+//   const dateTime = moment.tz(
+//       `${targetDay.format('YYYY-MM-DD')} ${times}`,
+//       "YYYY-MM-DD h:mm A",
+//       timeZone1
+//   );
+//
+//   // Construct the transformed payload
+//   return {
+//       date: dateTime.toISOString(),
+//       timeOfDay: dateTime.format('HH:mm:ss'),
+//       isEnabled: true
+//   };
+// }
+
 export function transformPayload(timeZone, days, times) {
-  // Map common timezone names to IANA timezone names
-  const timezoneMap = {
-    "Eastern Standard Time": "America/New_York"
-  };
-
-  // Use the mapped timezone or the provided one
-  const timeZone1 = timezoneMap[timeZone] || timeZone;
-
-  // Get the current date in the target timezone
-  const currentDate = moment().tz(timeZone);
-
-  // Determine the next occurrence of the specified day (e.g., Monday)
-  const targetDay = moment().tz(timeZone).day(days);
-
-  // If today is the day but the time has passed, move to next week's occurrence
-  if (targetDay.isBefore(currentDate, 'day') ||
-      (targetDay.isSame(currentDate, 'day') && moment(times, "h:mm A").isBefore(currentDate))) {
-    targetDay.add(1, 'weeks');
+  // Validate the timezone input
+  if (!moment.tz.zone(timeZone)) {
+    throw new Error("Invalid timezone input. Please provide a valid IANA timezone.");
   }
 
-  // Combine the target day and time
-  const dateTime = moment.tz(
-      `${targetDay.format('YYYY-MM-DD')} ${times}`,
-      "YYYY-MM-DD h:mm A",
-      timeZone1
-  );
+  // Function to map day names to ISO weekday numbers
+  const dayNameToIsoWeekday = (dayName) => {
+    const daysMap = {
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+      Sunday: 7,
+    };
+    return daysMap[dayName];
+  };
+
+  // Normalize days input
+  let targetDays = [];
+
+  // Handle specific ranges and common patterns
+  if (days === "Saturday & Sunday") {
+    targetDays = [6, 7];
+  } else if (days === "All 7 days of the week") {
+    targetDays = [1, 2, 3, 4, 5, 6, 7];
+  } else if (days.includes("to")) {
+    // Handle ranges like "Monday to Thursday"
+    const [startDay, endDay] = days.split(" to ").map(day => dayNameToIsoWeekday(day.trim()));
+    // Create an array of all days in the range
+    for (let i = startDay; i <= endDay; i++) {
+      targetDays.push(i);
+    }
+  } else if (days.includes(",")) {
+    // Handle lists like "Monday, Wednesday, Friday"
+    targetDays = days.split(",").map(day => dayNameToIsoWeekday(day.trim()));
+  } else {
+    // Handle a single day input like "Monday"
+    targetDays = [dayNameToIsoWeekday(days)];
+  }
+
+  if (targetDays.length === 0) {
+    throw new Error("Invalid days input.");
+  }
+
+  // Parse the given time
+  const inputTime = moment(times, "h:mm A");
+  if (!inputTime.isValid()) {
+    throw new Error("Invalid time format.");
+  }
+
+  // Calculate the startDate (next occurrence of the first day in the range)
+  const currentDate = moment().tz(timeZone);
+  let startDate = null;
+  let endDate = null;
+
+  for (let offset = 0; offset < 7; offset++) {
+    const potentialDate = currentDate.clone().add(offset, "days");
+    if (targetDays.includes(potentialDate.isoWeekday())) {
+      if (!startDate) {
+        startDate = moment.tz(
+            `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
+            "YYYY-MM-DD HH:mm",
+            timeZone
+        );
+      }
+      if (potentialDate.isoWeekday() === targetDays[targetDays.length - 1]) {
+        endDate = moment.tz(
+            `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
+            "YYYY-MM-DD HH:mm",
+            timeZone
+        );
+        break;
+      }
+    }
+  }
+
+  if (!startDate || !endDate) {
+    throw new Error("Could not determine startDate or endDate.");
+  }
 
   // Construct the transformed payload
   return {
-      date: dateTime.toISOString(),
-      timeOfDay: dateTime.format('HH:mm:ss'),
-      isEnabled: true
+    //date: startDate.toISOString(),
+    timeOfDay: startDate.format("HH:mm:ss"),
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    daysOfWeek: targetDays,
+    //isEnabled: true,
+    recipientRoles: 4
   };
 }
-
 export const parseDaysInput = (input) => {
   const normalizedInput = input.trim().toLowerCase();
 
