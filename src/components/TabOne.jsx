@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField, transformPayload } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble } from "../utils/util";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
@@ -93,7 +93,14 @@ const TabOne = ({setTab}) => {
       const newToken = localStorage.getItem('tokenRequestValue');
 
     const url = "https://ra-user-staging.azurewebsites.net/v1/journeys/121/prompts";
-    const promptSchedule = transformPayload(timeZone, days, time);
+      let promptSchedule;
+
+      if (days.includes("to")) {
+          promptSchedule = transformPayloadDouble(timeZone, days, time);
+      } else {
+          promptSchedule = transformPayloadSingle(timeZone, days, time);
+      }
+    // const promptSchedule = transformPayloadSingle(timeZone, days, time);
     const payload = {
         message: msg,
         workflowType: 5,
