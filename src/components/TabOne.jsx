@@ -174,12 +174,20 @@ const TabOne = ({setTab}) => {
         <div className="form-control">
           <label>Your Mobile Number:</label>
           <PhoneInput
-            inputClass={error?.phone && "error"}
+            inputClass={error?.phone ? "error ":""}
             value={phone}
             onChange={(value) => setPhone(value)}
             placeholder="(_ _ _) - _ _ _ - _ _ _ _ _ "
             containerStyle={{ marginTop: "4px" }}
-            onBlur={() => handleError("phone", phone)}
+            //onBlur={() => handleError("phone", phone)}
+
+            country="us"
+            onlyCountries={['us']}
+            disableDropdown={true}
+            enableAreaCodes={false}
+            buttonStyle={{
+                display: 'none', // Hides the flag and dropdown button
+            }}
           />
           {
             <span className={error?.phone ? "error" : "error2"}>
