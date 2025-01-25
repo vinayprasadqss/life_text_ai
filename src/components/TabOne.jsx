@@ -131,6 +131,9 @@ const TabOne = ({setTab}) => {
     } catch (error) {
         alert(error.response || error.message)
         console.error("API Error:", error.response || error.message);
+    } finally {
+        console.log("finally call")
+        setLoading(false);
     }
 };
 
