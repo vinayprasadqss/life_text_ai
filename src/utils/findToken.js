@@ -1,0 +1,71 @@
+async function generatePKCE() {
+    const codeVerifier = btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((acc, byte) => acc + String.fromCharCode(byte), ''))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    return { codeVerifier, codeChallenge };
+}
+
+export async function redirectToAuth() {
+    const { codeVerifier, codeChallenge } = await generatePKCE();
+    localStorage.setItem('code_verifier', codeVerifier); // Store for later use
+    const authUrl = `https://ra-id-staging.azurewebsites.net/connect/authorize?
+        response_type=code&
+        client_id=client&
+        redirect_uri=${encodeURIComponent('https://ra-user-staging.azurewebsites.net/callback')}&
+        scope=openid profile&
+        code_challenge=${codeChallenge}&
+        code_challenge_method=S256`;
+
+    window.location.href = authUrl; // Redirect user
+}
+
+
+
+
+function getAuthCodeFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('code');
+}
+
+
+export async function getAccessToken() {
+    const code = getAuthCodeFromUrl();
+    const codeVerifier = localStorage.getItem('code_verifier'); // Retrieve stored `code_verifier`
+
+    if (!code || !codeVerifier) {
+        console.error('Authorization code or code_verifier missing!');
+        return;
+    }
+
+    const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
+
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'authorization_code');
+    formData.append('client_id', 'client');
+    formData.append('client_secret', '123'); // If client secret is required
+    formData.append('code', code);
+    formData.append('redirect_uri', 'https://ra-user-staging.azurewebsites.net/callback');
+    formData.append('code_verifier', codeVerifier);
+
+    try {
+        const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+        console.log('Access Token:', data?.access_token);
+        return data?.access_token;
+    } catch (error) {
+        console.error('Error getting access token:', error);
+    }
+}
