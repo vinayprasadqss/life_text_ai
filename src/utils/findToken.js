@@ -13,19 +13,13 @@ async function generatePKCE() {
 
 export async function redirectToAuth() {
     const { codeVerifier, codeChallenge } = await generatePKCE();
+    console.log("sdasa", codeChallenge);
+
     localStorage.setItem('code_verifier', codeVerifier); // Store for later use
-    const authUrl = `https://ra-id-staging.azurewebsites.net/connect/authorize?
-        response_type=code&
-        client_id=client&
-        redirect_uri=${encodeURIComponent('https://ra-user-staging.azurewebsites.net/callback')}&
-        scope=openid profile&
-        code_challenge=${codeChallenge}&
-        code_challenge_method=S256`;
+    const authUrl = `https://ra-id-staging.azurewebsites.net/connect/authorize?response_type=code&client_id=client&state=V2VkIEphbiAyOSAyMDI1IDE5OjE1OjAwIEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKQ==&redirect_uri=https://ra-user-staging.azurewebsites.net/swagger/oauth2-redirect.html&scope=profile openid&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
     window.location.href = authUrl; // Redirect user
 }
-
-
 
 
 function getAuthCodeFromUrl() {
@@ -50,7 +44,7 @@ export async function getAccessToken() {
     formData.append('client_id', 'client');
     formData.append('client_secret', '123'); // If client secret is required
     formData.append('code', code);
-    formData.append('redirect_uri', 'https://ra-user-staging.azurewebsites.net/callback');
+    formData.append('redirect_uri', 'https://ra-user-staging.azurewebsites.net/swagger/oauth2-redirect.html');
     formData.append('code_verifier', codeVerifier);
 
     try {
