@@ -1,11 +1,18 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField } from "../utils/util";
+import {
+  parseDaysInput,
+  parseTimeInput,
+  transformPayloadDouble,
+  transformPayloadSingle,
+  validateField
+} from "../utils/util";
 import PhoneInput from "react-phone-input-2";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
+import RequestToken from "./TokkenRequest";
 
-const TabTwo = () => {
+const TabTwo = ({setTab}) => {
   const [friendName, setFriendName] = useState("");
   const [friendMobile, setFriendMobile] = useState("");
   const [msg, setMsg] = useState("");
@@ -18,6 +25,8 @@ const TabTwo = () => {
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
+  const [tokenRequest, setTokenRequest] = useState(false);
+  const [newId, setNewId] = useState('');
 
   const formatPhoneNumber = (value) => {
     // Remove all non-numeric characters
@@ -33,13 +42,11 @@ const TabTwo = () => {
       return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
     }
   };
-
-
   const handleChange = (e, setter) => {
-    const rawValue = e.target.value;
-    const formattedNumber = formatPhoneNumber(rawValue);
-    setter(formattedNumber);
+    const rawValue = e.target.value.replace(/\D/g, ""); // Store only numbers
+    setter(rawValue);
   };
+
 
 
   const handleKeyDown = (e, setter) => {
@@ -126,8 +133,119 @@ const TabTwo = () => {
     setRecaptchaVerified(!!value); // Set to true if value exists
   };
 
+  const signupUser = async () => {
+    if (!recaptchaVerified) {
+      alert("Please verify the reCAPTCHA.");
+      return;
+    }
+    // Validate required fields
+    const requiredFields = { msg, days, time, timeZone };
+    const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
+
+    if (emptyFields.length > 0) {
+      emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
+      return;
+    }
+
+    const newToken = localStorage.getItem('tokenRequestValue');
+
+    try {
+      const response = await axios.post(
+          "https://ra-user-staging.azurewebsites.net/v1/signup",
+          {
+            elder: {
+              name: friendName,
+              timeZone: "Eastern Standard Time",
+              phoneNumber: friendMobile,
+            },
+            champion: {
+              phoneNumber: phone,
+            },
+          },
+          {
+            headers: {
+              "Authorization": `Bearer ${newToken}`,
+              "Content-Type": "application/json-patch+json",
+              "Accept": "*/*",
+            },
+          }
+      );
+
+      console.log("✅ Success:", response.data);
+      setNewId(response.data.id)
+
+    } catch (error) {
+      console.error("❌ Error:", error.response ? error.response.data : error.message);
+    } finally {
+     // setNewId("121");
+      console.error("Error", error.response ? error.response.data : error.message);
+
+    }
+  };
+
+
+
+
+  const handleSubmit2 = async () => {
+    const newToken = localStorage.getItem('tokenRequestValue');
+    const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
+
+    let promptSchedule;
+    if (days.includes("to")) {
+      promptSchedule = transformPayloadDouble(timeZone, days, time);
+    } else {
+      promptSchedule = transformPayloadSingle(timeZone, days, time);
+    }
+
+    const payload = {
+      message: msg,
+      workflowType: 5,
+      followUp: 0,
+      isEnabled: true,
+      promptSchedule,
+      promptMediaIds: [],
+    };
+
+    try {
+      setLoading(true);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${newToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("API Response:", response.data);
+      if (response.status === 200) {
+        alert("Message scheduled successfully!");
+        console.log("API Response:", response.data);
+        setTab(3)
+      } else {
+        alert("Failed to schedule the message. Please try again.");
+        console.error("API Error:", response.data);
+      }
+    } catch (error) {
+      alert(error.response || error.message)
+      console.error("API Error:", error.response || error.message);
+    } finally {
+      console.log("finally call")
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      await handleSubmit2(); // Await the async function
+    };
+
+    fetchData(); // Call the async function
+
+  }, [newId]); // Dependency array
+
+
   return (
     <div className="wrapper">
+      <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
+      {tokenRequest && <RequestToken tokenRequest={tokenRequest} setTokenRequest={setTokenRequest}/>}
       <div className="form-wrap">
         <div className="form-control">
           <label>Who would you like to text?</label>
@@ -150,7 +268,7 @@ const TabTwo = () => {
 
           <input
               type="text"
-              value={friendMobile}
+              value={formatPhoneNumber(friendMobile)}
               Class={error?.friendMobile && "error"}
               onChange={(e) => handleChange(e, setFriendMobile)}
               onKeyDown={(e) => handleKeyDown(e, setFriendMobile)}
@@ -281,7 +399,7 @@ const TabTwo = () => {
 
           <input
               type="text"
-              value={phone}
+              value={formatPhoneNumber(phone)}
               class={error?.phone && "error"}
               onChange={(e) => handleChange(e, setPhone)}
               onKeyDown={(e) => handleKeyDown(e, setPhone)}
@@ -312,7 +430,7 @@ const TabTwo = () => {
           onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={handleSubmit} disabled={loading}>
+      <button onClick={signupUser} disabled={loading}>
         {loading ? "Submitting..." : "Schedule Message"}
       </button>
     </div>

@@ -113,7 +113,7 @@ const TabOne = ({setTab}) => {
       await getAccessToken();
   }
 
-    const signupUser = async () => {
+  const signupUser = async () => {
         if (!recaptchaVerified) {
             alert("Please verify the reCAPTCHA.");
             return;
@@ -211,7 +211,7 @@ const TabOne = ({setTab}) => {
         setLoading(false);
     }
 };
-    useEffect(() => {
+  useEffect(() => {
         const fetchData = async () => {
             await handleSubmit2(); // Await the async function
         };
