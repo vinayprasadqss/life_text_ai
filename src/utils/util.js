@@ -331,24 +331,22 @@ export const validateField = (field, value) => {
           error = "Please enter a valid email address.";
         break;
       case "phone":
-        if (!value.trim()) {
-          error = "Please provide your phone number.";
-        } else {
-          const data = validatePhoneNumber(value);
-          if (data && data.message) {
-            error = data.message;
-          }
-        }
+        if (!value.trim()) error = "Please provide your phone number.";
+        // } else {
+        //   const data = validatePhoneNumber(value);
+        //   if (data && data.message) {
+        //     error = data.message;
+        //   }
+        // }
         break;
         case "friendMobile":
-          if (!value.trim()) {
-            error = "Please provide their phone number.";
-          } else {
-            const data = validatePhoneNumber(value);
-            if (data && data.message) {
-              error = data.message;
-            }
-          }
+          if (!value.trim()) error = "Please provide their phone number.";
+          // } else {
+          //   const data = validatePhoneNumber(value);
+          //   if (data && data.message) {
+          //     error = data.message;
+          //   }
+          // }
           break;
       case "msg":
         if (!value.trim()) error = "Please enter your message.";

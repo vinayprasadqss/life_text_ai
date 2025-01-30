@@ -27,7 +27,32 @@ const TabOne = ({setTab}) => {
         setRecaptchaVerified(!!value); // Set to true if value exists
     };
 
-  const handleError = (field, value) => {
+    const formatPhoneNumber = (value) => {
+        // Remove all non-numeric characters
+        const phoneNumber = value.replace(/\D/g, "");
+
+        if (phoneNumber.length === 0) return ""; // Allow full deletion
+
+        if (phoneNumber.length <= 3) {
+            return `(${phoneNumber}`;
+        } else if (phoneNumber.length <= 6) {
+            return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+        } else {
+            return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+        }
+    };
+    const handleChange = (e) => {
+        const rawValue = e.target.value;
+        const formattedNumber = formatPhoneNumber(rawValue);
+        setPhone(formattedNumber);
+    };
+    const handleKeyDown = (e) => {
+        if (e.key === "Backspace" && phone.length === 1) {
+            setPhone(""); // Allow full deletion when pressing backspace
+        }
+    };
+
+    const handleError = (field, value) => {
     const error = validateField(field, value);
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -234,28 +259,23 @@ const TabOne = ({setTab}) => {
         </div>
         <div className="form-control">
           <label>Your Mobile Number:</label>
-          <PhoneInput
-            inputClass={error?.phone ? "error ":""}
-            value={phone}
-            onChange={(value) => setPhone(value)}
-            placeholder="(_ _ _) - _ _ _ - _ _ _ _ _ "
-            containerStyle={{ marginTop: "4px" }}
-            //onBlur={() => handleError("phone", phone)}
-
-            country="us"
-            onlyCountries={['us']}
-            disableDropdown={true}
-            enableAreaCodes={false}
-            buttonStyle={{
-                display: 'none', // Hides the flag and dropdown button
-            }}
-          />
-          {
-            <span className={error?.phone ? "error" : "error2"}>
+            <input
+                type="text"
+                className={error?.phone && "error"}
+                value={phone}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                maxLength={14}
+                onBlur={() => handleError("phone", phone)}
+                placeholder="(_ _ _) - _ _ _ - _ _ _ _ _"
+            />
+            {
+                <span className={error?.phone ? "error" : "error2"}>
               {error.phone ? error?.phone : "-"}
             </span>
-          }
+            }
         </div>
+
       </div>
       <div className="form-wrap">
         <div className="form-control">
