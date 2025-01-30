@@ -3,7 +3,7 @@ import {
   validatePhoneNumberLength,
 } from "libphonenumber-js";
 import moment from 'moment-timezone';
-
+import axios from "axios";
 
 
 const daysMap = {
@@ -378,4 +378,40 @@ export const validateField = (field, value) => {
   
     return error;
   };
+
+
+export const signupUser = async (newToken,name,phone, setNewId  ) => {
+
+  try {
+    const response = await axios.post(
+        "https://ra-user-staging.azurewebsites.net/v1/signup",
+        {
+          elder: {
+            name: name,
+            timeZone: "Eastern Standard Time",
+            phoneNumber: phone,
+          },
+          champion: {
+            phoneNumber: '',
+          },
+        },
+        {
+          headers: {
+            "Authorization": `Bearer ${newToken}`,
+            "Content-Type": "application/json-patch+json",
+            "Accept": "*/*",
+          },
+        }
+    );
+
+    console.log("✅ Success:", response.data);
+    //setNewId(response.data.id)
+
+  } catch (error) {
+    console.error("❌ Error:", error.response ? error.response.data : error.message);
+  } finally {
+    console.error("vinay", error.response ? error.response.data : error.message);
+    setNewId("121");
+  }
+};
   

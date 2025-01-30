@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble, signupUser } from "../utils/util";
 import { redirectToAuth, getAccessToken } from "../utils/findToken";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -20,6 +20,8 @@ const TabOne = ({setTab}) => {
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
+  const [newId, setNewId] = useState('');
+
 
   const handleError = (field, value) => {
     const error = validateField(field, value);
@@ -81,6 +83,7 @@ const TabOne = ({setTab}) => {
 
       await getAccessToken();
   }
+
   const handleSubmit2 = async () => {
       if (!recaptchaVerified) {
           alert("Please verify the reCAPTCHA.");
@@ -97,7 +100,12 @@ const TabOne = ({setTab}) => {
 
       const newToken = localStorage.getItem('tokenRequestValue');
 
-      const url = "https://ra-user-staging.azurewebsites.net/v1/journeys/121/prompts";
+      // for login user first time
+      signupUser(newToken, name, phone, setNewId);
+
+
+      const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
+
       let promptSchedule;
 
       if (days.includes("to")) {
@@ -302,7 +310,7 @@ const TabOne = ({setTab}) => {
           onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={handleSubmit3} disabled={loading}>
+      <button onClick={handleSubmit2} disabled={loading}>
         {loading ? "Submitting..." : "Schedule Message"}
       </button>
     </div>
