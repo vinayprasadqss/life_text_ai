@@ -11,6 +11,7 @@ import PhoneInput from "react-phone-input-2";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import RequestToken from "./TokkenRequest";
+import {getAccessToken, redirectToAuth} from "../utils/findToken";
 
 const TabTwo = ({setTab}) => {
   const [friendName, setFriendName] = useState("");
@@ -27,6 +28,11 @@ const TabTwo = ({setTab}) => {
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
   const [tokenRequest, setTokenRequest] = useState(false);
   const [newId, setNewId] = useState('');
+
+  const handleRecaptcha = (value) => {
+    console.log("reCAPTCHA Verified:", value);
+    setRecaptchaVerified(!!value); // Set to true if value exists
+  };
 
   const formatPhoneNumber = (value) => {
     // Remove all non-numeric characters
@@ -47,15 +53,11 @@ const TabTwo = ({setTab}) => {
     setter(rawValue);
   };
 
-
-
   const handleKeyDown = (e, setter) => {
     if (e.key === "Backspace" && e.target.value.length === 1) {
       setter(""); // Allow full deletion when pressing backspace
     }
   };
-
-
 
   const handleError = (field, value) => {
     const error = validateField(field, value);
@@ -128,11 +130,12 @@ const TabTwo = ({setTab}) => {
     }
   };
 
-  const handleRecaptcha = (value) => {
-    console.log("reCAPTCHA Verified:", value);
-    setRecaptchaVerified(!!value); // Set to true if value exists
-  };
 
+  const handleSubmit3 = async ()=>{
+    await redirectToAuth();
+
+    await getAccessToken();
+  }
   const signupUser = async () => {
     if (!recaptchaVerified) {
       alert("Please verify the reCAPTCHA.");
