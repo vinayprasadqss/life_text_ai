@@ -41,14 +41,14 @@ const TabOne = ({setTab}) => {
             return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
         }
     };
-    const handleChange = (e) => {
-        const rawValue = e.target.value;
-        const formattedNumber = formatPhoneNumber(rawValue);
-        setPhone(formattedNumber);
+    const handleChange = (e, setter) => {
+        const rawValue = e.target.value.replace(/\D/g, ""); // Store only numbers
+        setter(rawValue);
     };
-    const handleKeyDown = (e) => {
-        if (e.key === "Backspace" && phone.length === 1) {
-            setPhone(""); // Allow full deletion when pressing backspace
+
+    const handleKeyDown = (e, setter) => {
+        if (e.key === "Backspace" && e.target.value.length === 1) {
+            setter(""); // Allow full deletion when pressing backspace
         }
     };
 
@@ -152,13 +152,13 @@ const TabOne = ({setTab}) => {
             );
 
             console.log("✅ Success:", response.data);
-            //setNewId(response.data.id)
+            setNewId(response.data.id)
 
         } catch (error) {
             console.error("❌ Error:", error.response ? error.response.data : error.message);
         } finally {
             console.error("vinay", error.response ? error.response.data : error.message);
-            setNewId("121");
+            //setNewId("121");
         }
     };
 
@@ -262,17 +262,17 @@ const TabOne = ({setTab}) => {
             <input
                 type="text"
                 className={error?.phone && "error"}
-                value={phone}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
+                value={formatPhoneNumber(phone)}
+                onChange={(e) => handleChange(e, setPhone)}
+                onKeyDown={(e) => handleKeyDown(e, setPhone)}
                 maxLength={14}
                 onBlur={() => handleError("phone", phone)}
                 placeholder="(_ _ _) - _ _ _ - _ _ _ _ _"
             />
             {
                 <span className={error?.phone ? "error" : "error2"}>
-              {error.phone ? error?.phone : "-"}
-            </span>
+                    {error.phone ? error?.phone : "-"}
+                </span>
             }
         </div>
 
