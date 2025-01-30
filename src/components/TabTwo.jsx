@@ -19,6 +19,37 @@ const TabTwo = () => {
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
 
+  const formatPhoneNumber = (value) => {
+    // Remove all non-numeric characters
+    const phoneNumber = value.replace(/\D/g, "");
+
+    if (phoneNumber.length === 0) return ""; // Allow full deletion
+
+    if (phoneNumber.length <= 3) {
+      return `(${phoneNumber}`;
+    } else if (phoneNumber.length <= 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    } else {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+  };
+
+
+  const handleChange = (e, setter) => {
+    const rawValue = e.target.value;
+    const formattedNumber = formatPhoneNumber(rawValue);
+    setter(formattedNumber);
+  };
+
+
+  const handleKeyDown = (e, setter) => {
+    if (e.key === "Backspace" && e.target.value.length === 1) {
+      setter(""); // Allow full deletion when pressing backspace
+    }
+  };
+
+
+
   const handleError = (field, value) => {
     const error = validateField(field, value);
     setErrors((prevErrors) => ({
@@ -116,14 +147,16 @@ const TabTwo = () => {
         </div>
         <div className="form-control">
           <label>What's their mobile number?</label>
-          <PhoneInput
-            inputClass={error?.friendMobile && "error"}
-            // country={"us"}
-            value={friendMobile}
-            onChange={(value) => setFriendMobile(value)}
-            placeholder="(_ _ _) - _ _ _ - _ _ _ _ _ "
-            containerStyle={{ marginTop: "4px" }}
-            onBlur={() => handleError("friendMobile", friendMobile)}
+
+          <input
+              type="text"
+              value={friendMobile}
+              Class={error?.friendMobile && "error"}
+              onChange={(e) => handleChange(e, setFriendMobile)}
+              onKeyDown={(e) => handleKeyDown(e, setFriendMobile)}
+              maxLength={14}
+              placeholder="(_ _ _) - _ _ _ - _ _ _ _ _"
+              onBlur={() => handleError("friendMobile", friendMobile)}
           />
           {
             <span className={error?.friendMobile ? "error" : "error2"}>
@@ -245,15 +278,20 @@ const TabTwo = () => {
         </div>
         <div className="form-control">
           <label>Your Mobile Number:</label>
-          <PhoneInput
-            inputClass={error?.phone && "error"}
-            // country={"us"}
-            value={phone}
-            onChange={(value) => setPhone(value)}
-            placeholder="(_ _ _) - _ _ _ - _ _ _ _ _ "
-            containerStyle={{ marginTop: "4px" }}
-            onBlur={() => handleError("phone", phone)}
+
+          <input
+              type="text"
+              value={phone}
+              class={error?.phone && "error"}
+              onChange={(e) => handleChange(e, setPhone)}
+              onKeyDown={(e) => handleKeyDown(e, setPhone)}
+              maxLength={14}
+              placeholder="(_ _ _) - _ _ _ - _ _ _ _ _"
+              onBlur={() => handleError("phone", phone)}
           />
+
+
+
           {
             <span className={error?.phone ? "error" : "error2"}>
               {error.phone ? error?.phone : "-"}
