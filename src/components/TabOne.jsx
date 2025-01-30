@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble, signupUser } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble } from "../utils/util";
 import { redirectToAuth, getAccessToken } from "../utils/findToken";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -20,8 +20,12 @@ const TabOne = ({setTab}) => {
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
+  const [tokenRequest, setTokenRequest] = useState(false);
   const [newId, setNewId] = useState('');
 
+    const handleRecaptcha = (value) => {
+        setRecaptchaVerified(!!value); // Set to true if value exists
+    };
 
   const handleError = (field, value) => {
     const error = validateField(field, value);
@@ -84,36 +88,69 @@ const TabOne = ({setTab}) => {
       await getAccessToken();
   }
 
+    const signupUser = async () => {
+        if (!recaptchaVerified) {
+            alert("Please verify the reCAPTCHA.");
+            return;
+        }
+        // Validate required fields
+        const requiredFields = { msg, days, time, timeZone };
+        const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
+
+        if (emptyFields.length > 0) {
+            emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
+            return;
+        }
+
+        const newToken = localStorage.getItem('tokenRequestValue');
+
+        try {
+            const response = await axios.post(
+                "https://ra-user-staging.azurewebsites.net/v1/signup",
+                {
+                    elder: {
+                        name: name,
+                        timeZone: "Eastern Standard Time",
+                        phoneNumber: phone,
+                    },
+                    champion: {
+                        phoneNumber: '',
+                    },
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${newToken}`,
+                        "Content-Type": "application/json-patch+json",
+                        "Accept": "*/*",
+                    },
+                }
+            );
+
+            console.log("✅ Success:", response.data);
+            //setNewId(response.data.id)
+
+        } catch (error) {
+            console.error("❌ Error:", error.response ? error.response.data : error.message);
+        } finally {
+            console.error("vinay", error.response ? error.response.data : error.message);
+            setNewId("121");
+        }
+    };
+
+
+
+
   const handleSubmit2 = async () => {
-      if (!recaptchaVerified) {
-          alert("Please verify the reCAPTCHA.");
-          return;
-      }
-      // Validate required fields
-      const requiredFields = { msg, days, time, timeZone };
-      const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
-
-      if (emptyFields.length > 0) {
-          emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
-          return;
-      }
-
       const newToken = localStorage.getItem('tokenRequestValue');
-
-      // for login user first time
-      signupUser(newToken, name, phone, setNewId);
-
-
       const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
 
       let promptSchedule;
-
       if (days.includes("to")) {
           promptSchedule = transformPayloadDouble(timeZone, days, time);
       } else {
           promptSchedule = transformPayloadSingle(timeZone, days, time);
       }
-    // const promptSchedule = transformPayloadSingle(timeZone, days, time);
+
     const payload = {
         message: msg,
         workflowType: 5,
@@ -149,14 +186,15 @@ const TabOne = ({setTab}) => {
         setLoading(false);
     }
 };
+    useEffect(() => {
+        const fetchData = async () => {
+            await handleSubmit2(); // Await the async function
+        };
 
-  const handleRecaptcha = (value) => {
-    console.log("reCAPTCHA Verified:", value);
-    setRecaptchaVerified(!!value); // Set to true if value exists
-  };
+        fetchData(); // Call the async function
 
+    }, [newId]); // Dependency array
 
-  const [tokenRequest, setTokenRequest] = useState(false);
   return (
     <div className="wrapper">
         <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
@@ -310,7 +348,7 @@ const TabOne = ({setTab}) => {
           onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={handleSubmit2} disabled={loading}>
+      <button onClick={signupUser} disabled={loading}>
         {loading ? "Submitting..." : "Schedule Message"}
       </button>
     </div>
