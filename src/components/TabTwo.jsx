@@ -7,7 +7,6 @@ import {
   transformPayloadSingle,
   validateField
 } from "../utils/util";
-import PhoneInput from "react-phone-input-2";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import RequestToken from "./TokkenRequest";
@@ -33,7 +32,6 @@ const TabTwo = ({setTab}) => {
   const [newId, setNewId] = useState('');
 
   const handleRecaptcha = (value) => {
-    console.log("reCAPTCHA Verified:", value);
     setRecaptchaVerified(!!value); // Set to true if value exists
   };
 
@@ -69,70 +67,6 @@ const TabTwo = ({setTab}) => {
       [field]: error,
     }));
   };
-
-  const handleSubmit = async () => {
-    if (!recaptchaVerified) {
-      alert("Please verify the reCAPTCHA.");
-      return;
-    }
-    // Validate required fields
-    const requiredFields = {
-      name,
-      email,
-      phone,
-      msg,
-      days,
-      time,
-      timeZone,
-      friendName,
-      friendMobile,
-    };
-    const emptyFields = Object.entries(requiredFields).filter(
-      ([key, value]) => value === ""
-    );
-
-    if (emptyFields.length > 0) {
-      emptyFields.forEach(([key]) =>
-        handleError(key === "timeZone" ? "timezone" : key, ``)
-      );
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Dummy API call using axios
-      const response = await axios.post(
-        "https://jsonplaceholder.typicode.com/posts",
-        {
-          name,
-          email,
-          phone,
-          msg,
-          days,
-          time,
-          timeZone,
-          friendName,
-          friendMobile,
-        }
-      );
-
-      if (response.status === 201) {
-        alert("Message scheduled successfully!");
-        console.log("API Response:", response.data);
-        setTab(3);
-      } else {
-        alert("Failed to schedule the message. Please try again.");
-        console.error("API Error:", response.data);
-      }
-    } catch (error) {
-      console.error("Error during API call:", error);
-      alert("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   const handleSubmit3 = async ()=>{
     await redirectToAuth();
@@ -258,9 +192,6 @@ const TabTwo = ({setTab}) => {
         await handleSubmit2();
       }
     };
-
-    console.log('id vinay:', newId);
-
     fetchData(); // Call the async function
   }, [newId]); // Dependency array
 
