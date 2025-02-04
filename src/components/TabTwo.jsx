@@ -18,9 +18,9 @@ import Toast from './Toast';
 const TabTwo = ({setTab}) => {
   const [friendName, setFriendName] = useState("");
   const [friendMobile, setFriendMobile] = useState("");
-  const [msg, setMsg] = useState("Hello");
-  const [days, setDays] = useState("Sunday");
-  const [time, setTime] = useState("9:00 AM");
+  const [msg, setMsg] = useState("");
+  const [days, setDays] = useState("");
+  const [time, setTime] = useState("");
   const [timeZone, setTimeZone] = useState("America/Chicago");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

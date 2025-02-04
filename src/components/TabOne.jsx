@@ -17,7 +17,7 @@ const TabOne = ({setTab}) => {
   const [msg, setMsg] = useState("");
   const [days, setDays] = useState("");
   const [time, setTime] = useState("");
-  const [timeZone, setTimeZone] = useState("");
+  const [timeZone, setTimeZone] = useState("America/Chicago");
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);

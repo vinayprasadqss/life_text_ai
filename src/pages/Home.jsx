@@ -7,7 +7,7 @@ import TabThree from "../components/TabThree";
 
 
 const Home = () => {
-    const [tab, setTab] = useState(2);
+    const [tab, setTab] = useState(1);
 
     return (
         <>
