@@ -12,17 +12,20 @@ import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import RequestToken from "./TokkenRequest";
 import {getAccessToken, redirectToAuth} from "../utils/findToken";
+import Toast from './Toast';
+
+
 
 const TabTwo = ({setTab}) => {
-  const [friendName, setFriendName] = useState("");
-  const [friendMobile, setFriendMobile] = useState("");
-  const [msg, setMsg] = useState("");
-  const [days, setDays] = useState("");
-  const [time, setTime] = useState("");
-  const [timeZone, setTimeZone] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [friendName, setFriendName] = useState("Pankaj");
+  const [friendMobile, setFriendMobile] = useState("9999999999");
+  const [msg, setMsg] = useState("Hello");
+  const [days, setDays] = useState("Sunday");
+  const [time, setTime] = useState("9:00 AM");
+  const [timeZone, setTimeZone] = useState("America/Chicago");
+  const [name, setName] = useState("Vinay");
+  const [email, setEmail] = useState("vinay@gmai.com");
+  const [phone, setPhone] = useState("9999999991");
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
@@ -146,11 +149,12 @@ const TabTwo = ({setTab}) => {
     const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
 
     if (emptyFields.length > 0) {
-      emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
+      emptyFields.forEach(([key]) => handleError(key === "timeZone" ? "timezone" : key, ""));
       return;
     }
 
-    const newToken = localStorage.getItem('tokenRequestValue');
+    const newToken = localStorage.getItem("tokenRequestValue");
+    //setLoading(true);
 
     try {
       const response = await axios.post(
@@ -167,24 +171,38 @@ const TabTwo = ({setTab}) => {
           },
           {
             headers: {
-              "Authorization": `Bearer ${newToken}`,
+              Authorization: `Bearer ${newToken}`,
               "Content-Type": "application/json-patch+json",
-              "Accept": "*/*",
+              Accept: "*/*",
             },
           }
       );
 
       console.log("✅ Success:", response.data);
-      setNewId(response.data.id)
-
+      setNewId(response.data.id);
+      Toast("Success", "Signup completed successfully!"); // Success toast
     } catch (error) {
-      console.error("❌ Error:", error.response ? error.response.data : error.message);
-    } finally {
-     // setNewId("121");
-      console.error("Error", error.response ? error.response.data : error.message);
+      if (error.response) {
+        const { status } = error.response;
 
+        if (status === 401) {
+          Toast("Notification", "Unauthorized access. Please log in again.", "error");
+        } else {
+          Toast("Error", error.response.data.message || "Something went wrong.", "error");
+        }
+      } else if (error.message.includes("Network Error")) {
+        // Handling CORS or network errors
+        Toast("CORS Error", "Cross-Origin Request Blocked. Please check API permissions.", "error");
+      } else {
+        Toast("Error", "An unexpected error occurred.", "error");
+      }
+
+      console.error("❌ Error:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
 
 
 
@@ -210,7 +228,7 @@ const TabTwo = ({setTab}) => {
     };
 
     try {
-      setLoading(true);
+      //setLoading(true);
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${newToken}`,
@@ -232,7 +250,6 @@ const TabTwo = ({setTab}) => {
       console.error("API Error:", error.response || error.message);
     } finally {
       console.log("finally call")
-      setLoading(false);
     }
   };
   useEffect(() => {
