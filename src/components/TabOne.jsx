@@ -24,8 +24,20 @@ const TabOne = ({setTab}) => {
   const [tokenRequest, setTokenRequest] = useState(false);
   const [newId, setNewId] = useState('');
 
-    const handleRecaptcha = (value) => {
-        setRecaptchaVerified(!!value); // Set to true if value exists
+    const recaptchaRef = React.createRef(); // Ref for invisible reCAPTCHA
+    const handleRecaptcha = async () => {
+        try {
+            const token = await recaptchaRef.current.executeAsync(); // Invisible reCAPTCHA
+            recaptchaRef.current.reset(); // Reset after execution
+            console.log("Recaptcha Token:", token); // Log the token for debugging purposes
+
+            // Here, instead of backend verification, we check if the token exists
+            if (token) {
+                setRecaptchaVerified(true); // Set to true when token is received
+            }
+        } catch (error) {
+            console.error("reCAPTCHA error:", error);
+        }
     };
 
     const formatPhoneNumber = (value) => {
@@ -241,7 +253,11 @@ const TabOne = ({setTab}) => {
         fetchData(); // Call the async function
     }, [newId]); // Dependency array
 
-  return (
+    useEffect(() => {
+        handleRecaptcha();
+    }, []);
+
+    return (
     <div className="wrapper">
         <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
         {tokenRequest && <RequestToken tokenRequest={tokenRequest} setTokenRequest={setTokenRequest}/>}
@@ -376,19 +392,23 @@ const TabOne = ({setTab}) => {
           }
         </div>
       </div>
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: "-5px",
-          marginBottom: "20px",
-          display: "block",
-        }}
-      >
-        <ReCAPTCHA
-          sitekey="6LcjlpgqAAAAAPQZx-5MULrhxpTfcS_DbkP6aJAX" // Replace with your actual site key
-          onChange={handleRecaptcha}
-        />
-      </div>
+
+        {/* Invisible reCAPTCHA v3 */}
+        <div
+            style={{
+                textAlign: "center",
+                marginTop: "-5px",
+                marginBottom: "20px",
+                display: "block",
+            }}
+        >
+            <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey="6LePf8wqAAAAAALmZTChTGOUGQmTD202ZNmzZZar" // Replace with your actual site key
+                size="invisible"
+                onChange={handleRecaptcha}
+            />
+        </div>
         <button onClick={signupUser} disabled={loading}>
             {/*{loading ? "Submitting..." : "Schedule Message"}*/}
             Schedule Message
