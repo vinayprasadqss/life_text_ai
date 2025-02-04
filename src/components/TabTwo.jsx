@@ -18,14 +18,14 @@ import Toast from './Toast';
 
 const TabTwo = ({setTab}) => {
   const [friendName, setFriendName] = useState("Pankaj");
-  const [friendMobile, setFriendMobile] = useState("9999999999");
+  const [friendMobile, setFriendMobile] = useState("9999999992");
   const [msg, setMsg] = useState("Hello");
   const [days, setDays] = useState("Sunday");
   const [time, setTime] = useState("9:00 AM");
   const [timeZone, setTimeZone] = useState("America/Chicago");
   const [name, setName] = useState("Vinay");
   const [email, setEmail] = useState("vinay@gmai.com");
-  const [phone, setPhone] = useState("9999999991");
+  const [phone, setPhone] = useState("2222222222");
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
@@ -178,9 +178,9 @@ const TabTwo = ({setTab}) => {
           }
       );
 
-      console.log("✅ Success:", response.data);
+      console.log("✅ Success: vinay3", response.data);
       setNewId(response.data.id);
-      Toast("Success", "Signup completed successfully!"); // Success toast
+      Toast("Success", "Congratulations, your message has been scheduled!"); // Success toast
     } catch (error) {
       if (error.response) {
         const { status } = error.response;
@@ -188,7 +188,7 @@ const TabTwo = ({setTab}) => {
         if (status === 401) {
           Toast("Notification", "Unauthorized access. Please log in again.", "error");
         } else {
-          Toast("Error", error.response.data.message || "Something went wrong.", "error");
+          Toast((error.response.statusText||"Error"), error.response.data.errors[0].description || "Something went wrong.", "error");
         }
       } else if (error.message.includes("Network Error")) {
         // Handling CORS or network errors
@@ -238,27 +238,31 @@ const TabTwo = ({setTab}) => {
 
       console.log("API Response:", response.data);
       if (response.status === 200) {
-        alert("Message scheduled successfully!");
+       /* alert("Message scheduled successfully!");*/
         console.log("API Response:", response.data);
         setTab(3)
       } else {
-        alert("Failed to schedule the message. Please try again.");
+        Toast("Error", "Failed to schedule the message. Please try again.", "error");
         console.error("API Error:", response.data);
       }
     } catch (error) {
-      alert(error.response || error.message)
+      Toast("Error", error.response || error.message ||"Something went wrong.", "error");
       console.error("API Error:", error.response || error.message);
     } finally {
       console.log("finally call")
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
-      await handleSubmit2(); // Await the async function
+      if (newId) { // Run only if newId has a value
+        await handleSubmit2();
+      }
     };
 
-    fetchData(); // Call the async function
+    console.log('id vinay:', newId);
 
+    fetchData(); // Call the async function
   }, [newId]); // Dependency array
 
 
@@ -289,7 +293,7 @@ const TabTwo = ({setTab}) => {
           <input
               type="text"
               value={formatPhoneNumber(friendMobile)}
-              Class={error?.friendMobile && "error"}
+              className={error?.friendMobile && "error"}
               onChange={(e) => handleChange(e, setFriendMobile)}
               onKeyDown={(e) => handleKeyDown(e, setFriendMobile)}
               maxLength={14}
@@ -420,7 +424,7 @@ const TabTwo = ({setTab}) => {
           <input
               type="text"
               value={formatPhoneNumber(phone)}
-              class={error?.phone && "error"}
+              className={error?.phone && "error"}
               onChange={(e) => handleChange(e, setPhone)}
               onKeyDown={(e) => handleKeyDown(e, setPhone)}
               maxLength={14}
