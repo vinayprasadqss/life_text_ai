@@ -154,9 +154,9 @@ const TabTwo = ({setTab}) => {
     }
 
     const newToken = localStorage.getItem("tokenRequestValue");
-    //setLoading(true);
 
     try {
+      setLoading(true);
       const response = await axios.post(
           "https://ra-user-staging.azurewebsites.net/v1/signup",
           {
@@ -228,7 +228,6 @@ const TabTwo = ({setTab}) => {
     };
 
     try {
-      //setLoading(true);
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${newToken}`,
@@ -455,8 +454,13 @@ const TabTwo = ({setTab}) => {
         />
       </div>
       <button onClick={signupUser} disabled={loading}>
-        {loading ? "Submitting..." : "Schedule Message"}
+        {/*{loading ? "Submitting..." : "Schedule Message"}*/}
+        Schedule Message
       </button>
+      {loading && <div className="loaderScreen">
+        <div className="circle-spinner"></div>
+        Scheduling...
+      </div>}
     </div>
   );
 };
