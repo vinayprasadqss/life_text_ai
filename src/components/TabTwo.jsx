@@ -17,15 +17,15 @@ import Toast from './Toast';
 
 
 const TabTwo = ({setTab}) => {
-  const [friendName, setFriendName] = useState("Pankaj");
-  const [friendMobile, setFriendMobile] = useState("9999999992");
+  const [friendName, setFriendName] = useState("");
+  const [friendMobile, setFriendMobile] = useState("");
   const [msg, setMsg] = useState("Hello");
   const [days, setDays] = useState("Sunday");
   const [time, setTime] = useState("9:00 AM");
   const [timeZone, setTimeZone] = useState("America/Chicago");
-  const [name, setName] = useState("Vinay");
-  const [email, setEmail] = useState("vinay@gmai.com");
-  const [phone, setPhone] = useState("2222222222");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
@@ -145,7 +145,7 @@ const TabTwo = ({setTab}) => {
       return;
     }
     // Validate required fields
-    const requiredFields = { msg, days, time, timeZone };
+    const requiredFields = { friendName,friendMobile, phone, msg, days, time, timeZone };
     const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
 
     if (emptyFields.length > 0) {
