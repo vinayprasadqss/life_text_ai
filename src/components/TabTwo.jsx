@@ -162,6 +162,7 @@ const TabTwo = ({setTab}) => {
     };
 
     try {
+      setLoading(true);
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${newToken}`,
@@ -182,6 +183,7 @@ const TabTwo = ({setTab}) => {
       Toast("Error", error.response || error.message ||"Something went wrong.", "error");
       console.error("API Error:", error.response || error.message);
     } finally {
+      setLoading(false);
       console.log("finally call")
     }
   };
