@@ -8,6 +8,7 @@ import "react-phone-input-2/lib/style.css";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import RequestToken from "./TokkenRequest";
+import Toast from "./Toast";
 
 const TabOne = ({setTab}) => {
   const [name, setName] = useState("");
@@ -60,19 +61,22 @@ const TabOne = ({setTab}) => {
     }));
   };
 
-  const handleSubmit = async () => {
+    const generateUniqueNumber = () => {
+        return Math.floor(1000000000 + Math.random() * 9000000000);
+    };
+    const handleSubmit = async () => {
     if (!recaptchaVerified) {
       alert("Please verify the reCAPTCHA.");
       return;
     }
-  // Validate required fields
-  const requiredFields = { name, email, phone, msg, days, time, timeZone };
-  const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
+    // Validate required fields
+    const requiredFields = { name, email, phone, msg, days, time, timeZone };
+    const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
 
-  if (emptyFields.length > 0) {
+    if (emptyFields.length > 0) {
     emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
     return;
-  }
+    }
 
 
     try {
@@ -106,30 +110,31 @@ const TabOne = ({setTab}) => {
     } finally {
       setLoading(false);
     }
-  };
-  const handleSubmit3 = async ()=>{
+    };
+    const handleSubmit3 = async ()=>{
       await redirectToAuth();
 
       await getAccessToken();
-  }
+    }
 
-  const signupUser = async () => {
+    const signupUser = async () => {
         if (!recaptchaVerified) {
             alert("Please verify the reCAPTCHA.");
             return;
         }
         // Validate required fields
-        const requiredFields = { msg, days, time, timeZone };
+        const requiredFields = { name, phone, msg, days, time, timeZone };
         const emptyFields = Object.entries(requiredFields).filter(([key, value]) => value === "");
 
         if (emptyFields.length > 0) {
-            emptyFields.forEach(([key]) => handleError(key==="timeZone" ? "timezone":key, ``));
+            emptyFields.forEach(([key]) => handleError(key === "timeZone" ? "timezone" : key, ""));
             return;
         }
 
-        const newToken = localStorage.getItem('tokenRequestValue');
-
+        const newToken = localStorage.getItem("tokenRequestValue");
+        const phoneNumberAuto = generateUniqueNumber(); // Generate a 10-digit unique phone number
         try {
+            setLoading(true);
             const response = await axios.post(
                 "https://ra-user-staging.azurewebsites.net/v1/signup",
                 {
@@ -139,85 +144,98 @@ const TabOne = ({setTab}) => {
                         phoneNumber: phone,
                     },
                     champion: {
-                        phoneNumber: '',
+                        phoneNumber: phoneNumberAuto,
                     },
                 },
                 {
                     headers: {
-                        "Authorization": `Bearer ${newToken}`,
+                        Authorization: `Bearer ${newToken}`,
                         "Content-Type": "application/json-patch+json",
-                        "Accept": "*/*",
+                        Accept: "*/*",
                     },
                 }
             );
 
-            console.log("✅ Success:", response.data);
-            setNewId(response.data.id)
-
+            console.log("✅ Success: vinay3", response.data);
+            setNewId(response.data.id);
+            //Toast("Success", "Congratulations, your message has been scheduled!"); // Success toast
         } catch (error) {
-            console.error("❌ Error:", error.response ? error.response.data : error.message);
+            if (error.response) {
+                const { status } = error.response;
+
+                if (status === 401) {
+                    Toast("Notification", "Unauthorized access. Please log in again.", "error");
+                } else {
+                    Toast((error.response.statusText||"Error"), error.response.data.errors[0].description || "Something went wrong.", "error");
+                }
+            } else if (error.message.includes("Network Error")) {
+                // Handling CORS or network errors
+                Toast("CORS Error", "Cross-Origin Request Blocked. Please check API permissions.", "error");
+            } else {
+                Toast("Error", "An unexpected error occurred.", "error");
+            }
+
+            console.error("❌ Error:", error.message);
         } finally {
-            console.error("vinay", error.response ? error.response.data : error.message);
-            //setNewId("121");
+            setLoading(false);
         }
     };
 
 
 
 
-  const handleSubmit2 = async () => {
-      const newToken = localStorage.getItem('tokenRequestValue');
-      const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
+    const handleSubmit2 = async () => {
+        const newToken = localStorage.getItem('tokenRequestValue');
+        const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
 
-      let promptSchedule;
-      if (days.includes("to")) {
-          promptSchedule = transformPayloadDouble(timeZone, days, time);
-      } else {
-          promptSchedule = transformPayloadSingle(timeZone, days, time);
-      }
-
-    const payload = {
-        message: msg,
-        workflowType: 5,
-        followUp: 0,
-        isEnabled: true,
-        promptSchedule,
-        promptMediaIds: [],
-    };
-
-    try {
-        setLoading(true);
-        const response = await axios.post(url, payload, {
-            headers: {
-                Authorization: `Bearer ${newToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        console.log("API Response:", response.data);
-        if (response.status === 200) {
-            alert("Message scheduled successfully!");
-            console.log("API Response:", response.data);
-            setTab(3)
+        let promptSchedule;
+        if (days.includes("to")) {
+            promptSchedule = transformPayloadDouble(timeZone, days, time);
         } else {
-            alert("Failed to schedule the message. Please try again.");
-            console.error("API Error:", response.data);
+            promptSchedule = transformPayloadSingle(timeZone, days, time);
         }
-    } catch (error) {
-        alert(error.response || error.message)
-        console.error("API Error:", error.response || error.message);
-    } finally {
-        console.log("finally call")
-        setLoading(false);
-    }
-};
-  useEffect(() => {
-        const fetchData = async () => {
-            await handleSubmit2(); // Await the async function
+
+        const payload = {
+            message: msg,
+            workflowType: 5,
+            followUp: 0,
+            isEnabled: true,
+            promptSchedule,
+            promptMediaIds: [],
         };
 
-        fetchData(); // Call the async function
+        try {
+            const response = await axios.post(url, payload, {
+                headers: {
+                    Authorization: `Bearer ${newToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
+            console.log("API Response:", response.data);
+            if (response.status === 200) {
+                /* alert("Message scheduled successfully!");*/
+                console.log("API Response:", response.data);
+                setTab(3)
+            } else {
+                Toast("Error", "Failed to schedule the message. Please try again.", "error");
+                console.error("API Error:", response.data);
+            }
+        } catch (error) {
+            Toast("Error", error.response || error.message ||"Something went wrong.", "error");
+            console.error("API Error:", error.response || error.message);
+        } finally {
+            console.log("finally call")
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (newId) { // Run only if newId has a value
+                await handleSubmit2();
+            }
+        };
+        fetchData(); // Call the async function
     }, [newId]); // Dependency array
 
   return (
@@ -368,9 +386,14 @@ const TabOne = ({setTab}) => {
           onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={signupUser} disabled={loading}>
-        {loading ? "Submitting..." : "Schedule Message"}
-      </button>
+        <button onClick={signupUser} disabled={loading}>
+            {/*{loading ? "Submitting..." : "Schedule Message"}*/}
+            Schedule Message
+        </button>
+        {loading && <div className="loaderScreen">
+            <div className="circle-spinner"></div>
+            Scheduling...
+        </div>}
     </div>
   );
 };
