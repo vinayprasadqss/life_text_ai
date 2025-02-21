@@ -1,3 +1,9 @@
+const authorizeEndpoint = "https://ra-id-staging.azurewebsites.net/connect/authorize";
+const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
+const clientId = "client";
+const scope ="openid profile championapi caregiverapi roles offline_access";
+const redirect_uri="http://localhost:4200/index.html";
+
 async function generatePKCE() {
     const codeVerifier = btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((acc, byte) => acc + String.fromCharCode(byte), ''))
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -16,9 +22,16 @@ export async function redirectToAuth() {
     console.log("sdasa", codeChallenge);
 
     localStorage.setItem('code_verifier', codeVerifier); // Store for later use
-    const authUrl = `https://ra-id-staging.azurewebsites.net/connect/authorize?response_type=code&client_id=client&state=V2VkIEphbiAyOSAyMDI1IDE5OjE1OjAwIEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKQ==&redirect_uri=https://ra-user-staging.azurewebsites.net/swagger/oauth2-redirect.html&scope=profile openid&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
-    window.location.href = authUrl; // Redirect user
+    const args = new URLSearchParams({
+        response_type: "code",
+        client_id: clientId,
+        scope: scope,
+        redirect_uri:redirect_uri,
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256'
+    });
+    window.location.href = authorizeEndpoint + "?" + args; // Redirect user
 }
 
 
@@ -37,14 +50,13 @@ export async function getAccessToken() {
         return;
     }
 
-    const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
 
     const formData = new URLSearchParams();
     formData.append('grant_type', 'authorization_code');
     formData.append('client_id', 'client');
     formData.append('client_secret', '123'); // If client secret is required
     formData.append('code', code);
-    formData.append('redirect_uri', 'https://ra-user-staging.azurewebsites.net/swagger/oauth2-redirect.html');
+    formData.append('redirect_uri', redirect_uri);
     formData.append('code_verifier', codeVerifier);
 
     try {
@@ -57,7 +69,7 @@ export async function getAccessToken() {
         });
 
         const data = await response.json();
-        console.log('Access Token:', data?.access_token);
+        console.log('Access Token:', data);
         return data?.access_token;
     } catch (error) {
         console.error('Error getting access token:', error);

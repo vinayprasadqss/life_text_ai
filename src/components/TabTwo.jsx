@@ -83,8 +83,14 @@ const TabTwo = ({setTab}) => {
   const handleSubmit3 = async ()=>{
     await redirectToAuth();
 
-    await getAccessToken();
+    /*await getAccessToken();*/
+
   }
+  useEffect(() => {
+    getAccessToken();
+  }, []);
+
+
   const signupUser = async () => {
     if (!recaptchaVerified) {
       alert("Please verify the reCAPTCHA.");
@@ -405,7 +411,7 @@ const TabTwo = ({setTab}) => {
             onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={signupUser} disabled={loading}>
+      <button onClick={handleSubmit3} disabled={loading}>
         {/*{loading ? "Submitting..." : "Schedule Message"}*/}
         Schedule Message
       </button>
