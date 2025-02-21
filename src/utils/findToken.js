@@ -70,6 +70,7 @@ export async function getAccessToken() {
 
         const data = await response.json();
         console.log('Access Token:', data);
+        data?.access_token && localStorage.setItem("tokenRequestValue", data?.access_token);
         return data?.access_token;
     } catch (error) {
         console.error('Error getting access token:', error);

@@ -80,15 +80,12 @@ const TabTwo = ({setTab}) => {
     }));
   };
 
-  const handleSubmit3 = async ()=>{
-    await redirectToAuth();
-
-    /*await getAccessToken();*/
-
-  }
-  useEffect(() => {
-    getAccessToken();
-  }, []);
+  // const handleSubmit3 = async ()=>{
+  //   await redirectToAuth();
+  // }
+  // useEffect(() => {
+  //   getAccessToken();
+  // }, []);
 
 
   const signupUser = async () => {
@@ -221,7 +218,7 @@ const TabTwo = ({setTab}) => {
 
   return (
     <div className="wrapper">
-      <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
+     {/* <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>*/}
       {tokenRequest && <RequestToken tokenRequest={tokenRequest} setTokenRequest={setTokenRequest}/>}
       <div className="form-wrap">
         <div className="form-control">
@@ -411,7 +408,7 @@ const TabTwo = ({setTab}) => {
             onChange={handleRecaptcha}
         />
       </div>
-      <button onClick={handleSubmit3} disabled={loading}>
+      <button onClick={signupUser} disabled={loading}>
         {/*{loading ? "Submitting..." : "Schedule Message"}*/}
         Schedule Message
       </button>

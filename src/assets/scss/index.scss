@@ -100,7 +100,16 @@ section {
         }
       }
     }
-
+    button.tokenREqBtn {
+      width: fit-content;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      background: #3ef127;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
     .wrapper {
       width: 970px;
       max-height:max-content;

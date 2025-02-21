@@ -1,17 +1,25 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import logo from "../assets/img/logo.png";
 import TabHeader from "../components/TabHeader";
 import TabOne from "../components/TabOne";
 import TabTwo from "../components/TabTwo";
 import TabThree from "../components/TabThree";
+import {getAccessToken, redirectToAuth} from "../utils/findToken";
 
 
 const Home = () => {
     const [tab, setTab] = useState(2);
+    const handleSubmit3 = async ()=>{
+        await redirectToAuth();
+    }
+    useEffect(() => {
+         getAccessToken();
+    }, []);
 
     return (
         <>
             <section className="main">
+                <button className={"tokenREqBtn"} onClick={handleSubmit3}>Login</button>
                 <div className="logo">
                     <img src={logo} alt="logo" />
                 </div>
