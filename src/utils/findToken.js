@@ -2,7 +2,8 @@ const authorizeEndpoint = "https://ra-id-staging.azurewebsites.net/connect/autho
 const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
 const clientId = "client";
 const scope ="openid profile championapi caregiverapi roles offline_access";
-const redirect_uri="http://localhost:4200/index.html";
+// Dynamically set redirect_uri from current browser URL
+const redirect_uri = `${window.location.origin}/index.html`;
 
 async function generatePKCE() {
     const codeVerifier = btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((acc, byte) => acc + String.fromCharCode(byte), ''))
