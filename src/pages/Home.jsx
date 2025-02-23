@@ -4,7 +4,7 @@ import TabHeader from "../components/TabHeader";
 import TabOne from "../components/TabOne";
 import TabTwo from "../components/TabTwo";
 import TabThree from "../components/TabThree";
-import {getAccessToken, redirectToAuth} from "../utils/findToken";
+import {getAccessToken, redirectToAuth, refreshAccessToken } from "../utils/findToken";
 
 
 const Home = () => {
@@ -13,7 +13,14 @@ const Home = () => {
         await redirectToAuth();
     }
     useEffect(() => {
-         getAccessToken();
+        getAccessToken();
+
+        const interval = setInterval(async () => {
+            console.log("Refreshing access token...");
+            await refreshAccessToken();
+        }, 8 * 60 * 1000); // Refresh every 8 minutes
+
+        return () => clearInterval(interval);
     }, []);
 
     return (

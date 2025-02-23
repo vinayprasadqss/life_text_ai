@@ -70,9 +70,54 @@ export async function getAccessToken() {
 
         const data = await response.json();
         console.log('Access Token:', data);
+        if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+        }
         data?.access_token && localStorage.setItem("tokenRequestValue", data?.access_token);
         return data?.access_token;
     } catch (error) {
         console.error('Error getting access token:', error);
     }
 }
+
+export async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem('refresh_token');
+
+    if (!refreshToken) {
+        console.error("No refresh token available");
+        return;
+    }
+
+    const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
+
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'refresh_token');
+    formData.append('client_id', 'client');
+    formData.append('redirect_uri', redirect_uri); // If required
+    formData.append('refresh_token', refreshToken);
+
+    try {
+        const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            data?.access_token && localStorage.setItem("tokenRequestValue", data?.access_token);
+            return data.access_token;
+        } else {
+            console.error("Failed to refresh token");
+        }
+    } catch (error) {
+        console.error("Error refreshing access token:", error);
+    }
+}
+
