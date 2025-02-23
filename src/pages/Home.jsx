@@ -8,7 +8,7 @@ import {getAccessToken, redirectToAuth, refreshAccessToken } from "../utils/find
 
 
 const Home = () => {
-    const [tab, setTab] = useState(2);
+    const [tab, setTab] = useState(1);
     const handleSubmit3 = async ()=>{
         await redirectToAuth();
     }
@@ -48,7 +48,7 @@ const Home = () => {
     return (
         <>
             <section className="main">
-                <button className={"tokenREqBtn"} onClick={handleSubmit3}>Login</button>
+                {/*<button className={"tokenREqBtn"} onClick={handleSubmit3}>Login</button>*/}
                 <div className="logo">
                     <img src={logo} alt="logo" />
                 </div>

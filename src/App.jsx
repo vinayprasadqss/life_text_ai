@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import New from "./pages/New";
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 
 const App = () => {
@@ -13,7 +13,8 @@ const App = () => {
       <Routes>
         <Route path="/index.html" element={<Home />} />
         <Route path="/new" element={<New />} />
-        <Route path="*" element={<NotFound />} />
+        {/* Catch-all route: Redirect any unknown path to /index.html */}
+        <Route path="*" element={<Navigate to="/index.html" replace />} />
       </Routes>
     </>
   );

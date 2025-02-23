@@ -259,7 +259,7 @@ const TabOne = ({setTab}) => {
 
     return (
     <div className="wrapper">
-        <button className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
+        <button style={{display:"none"}} className={"tokenREqBtn"} onClick={()=> setTokenRequest(true)}>Click</button>
         {tokenRequest && <RequestToken tokenRequest={tokenRequest} setTokenRequest={setTokenRequest}/>}
       <div className="form-wrap">
         <div className="form-control">
