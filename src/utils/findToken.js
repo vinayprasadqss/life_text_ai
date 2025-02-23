@@ -20,7 +20,6 @@ async function generatePKCE() {
 
 export async function redirectToAuth() {
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    console.log("sdasa", codeChallenge);
 
     localStorage.setItem('code_verifier', codeVerifier); // Store for later use
 

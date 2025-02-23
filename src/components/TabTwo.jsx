@@ -87,6 +87,13 @@ const TabTwo = ({setTab}) => {
   //   getAccessToken();
   // }, []);
 
+  const generateUniqueNumber = (numb = "000") => {
+    // Generate a random 3-digit number (excluding first 3 and fixed middle 000)
+    const firstThree = Math.floor(100 + Math.random() * 900); // First 3 digits (100-999)
+    const lastFour = Math.floor(1000 + Math.random() * 9000); // Last 4 digits (1000-9999)
+
+    return parseInt(`${firstThree}${numb}${lastFour}`, 10); // Concatenating to get 10-digit number
+  };
 
   const signupUser = async () => {
     if (!recaptchaVerified) {
@@ -104,6 +111,8 @@ const TabTwo = ({setTab}) => {
 
     const newToken = localStorage.getItem("tokenRequestValue");
 
+    const elderPhNumAuto = generateUniqueNumber('000'); // Generate a 10-digit unique phone number
+    const championPhNumAuto = generateUniqueNumber('001'); // Generate a 10-digit unique phone number
     try {
       setLoading(true);
       const response = await axios.post(
@@ -112,10 +121,10 @@ const TabTwo = ({setTab}) => {
             elder: {
               name: friendName,
               timeZone: "Eastern Standard Time",
-              phoneNumber: friendMobile,
+              phoneNumber: elderPhNumAuto,
             },
             champion: {
-              phoneNumber: phone,
+              phoneNumber: championPhNumAuto,
             },
           },
           {

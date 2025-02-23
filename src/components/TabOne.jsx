@@ -73,9 +73,14 @@ const TabOne = ({setTab}) => {
     }));
   };
 
-    const generateUniqueNumber = () => {
-        return Math.floor(1000000000 + Math.random() * 9000000000);
+    const generateUniqueNumber = (numb = "000") => {
+        // Generate a random 3-digit number (excluding first 3 and fixed middle 000)
+        const firstThree = Math.floor(100 + Math.random() * 900); // First 3 digits (100-999)
+        const lastFour = Math.floor(1000 + Math.random() * 9000); // Last 4 digits (1000-9999)
+
+        return parseInt(`${firstThree}${numb}${lastFour}`, 10); // Concatenating to get 10-digit number
     };
+
     const handleSubmit = async () => {
     if (!recaptchaVerified) {
       alert("Please verify the reCAPTCHA.");
@@ -144,7 +149,10 @@ const TabOne = ({setTab}) => {
         }
 
         const newToken = localStorage.getItem("tokenRequestValue");
-        const phoneNumberAuto = generateUniqueNumber(); // Generate a 10-digit unique phone number
+
+        const elderPhNumAuto = generateUniqueNumber('000'); // Generate a 10-digit unique phone number
+        const championPhNumAuto = generateUniqueNumber('001'); // Generate a 10-digit unique phone number
+
         try {
             setLoading(true);
             const response = await axios.post(
@@ -153,10 +161,10 @@ const TabOne = ({setTab}) => {
                     elder: {
                         name: name,
                         timeZone: "Eastern Standard Time",
-                        phoneNumber: phone,
+                        phoneNumber: elderPhNumAuto,
                     },
                     champion: {
-                        phoneNumber: phoneNumberAuto,
+                        phoneNumber: championPhNumAuto,
                     },
                 },
                 {
