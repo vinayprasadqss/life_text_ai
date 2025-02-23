@@ -73,9 +73,11 @@ export async function getAccessToken() {
         if (data.access_token) {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
+            localStorage.setItem("tokenRequestValue", data?.access_token);
+            window.history.replaceState({}, document.title, window.location.pathname); // Remove auth code from URL to prevent reuse
+        } else {
+            console.error("Failed to retrieve access token.");
         }
-        data?.access_token && localStorage.setItem("tokenRequestValue", data?.access_token);
-        return data?.access_token;
     } catch (error) {
         console.error('Error getting access token:', error);
     }

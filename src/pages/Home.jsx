@@ -13,12 +13,34 @@ const Home = () => {
         await redirectToAuth();
     }
     useEffect(() => {
-        getAccessToken();
+        const autoLogin = async () => {
+            const accessToken = localStorage.getItem('access_token');
+            const refreshToken = localStorage.getItem('refresh_token');
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get("code"); // Check if auth code exists in URL
 
+            if (code) {
+                console.log("Authorization code found, exchanging for access token...");
+                await getAccessToken();
+            } else if (accessToken) {
+                console.log("Existing access token found, refreshing token...");
+                await refreshAccessToken();
+            } else if (refreshToken) {
+                console.log("No access token, trying to refresh with refresh token...");
+                await refreshAccessToken();
+            } else {
+                console.log("No tokens found, redirecting to login...");
+                await redirectToAuth(); // First-time login
+            }
+        };
+
+        autoLogin();
+
+        // 🔹 Auto-refresh the token every 10 minutes
         const interval = setInterval(async () => {
             console.log("Refreshing access token...");
             await refreshAccessToken();
-        }, 8 * 60 * 1000); // Refresh every 8 minutes
+        }, 10 * 60 * 1000);
 
         return () => clearInterval(interval);
     }, []);
