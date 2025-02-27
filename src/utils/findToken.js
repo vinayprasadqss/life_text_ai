@@ -139,8 +139,8 @@ export const loginUser = async () => {
         };
 
         const data = qs.stringify({
-            "Input.Email": "phil@orangebees.com",
-            "Input.Password": "ElderKey1_",
+            "Input.Email": "pankaj@qsstechnosoft.com",
+            "Input.Password": "P@ssw0rd",
         });
 
         const response = await axios.post(url, data, {
