@@ -123,3 +123,33 @@ export async function refreshAccessToken() {
     }
 }
 
+export const loginUser = async () => {
+    try {
+        const response = await fetch("https://ra-id-staging.azurewebsites.net/Account/Login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            },
+            body: new URLSearchParams({
+                "Input.Email": "pankaj@qsstechnosoft.com",
+                "Input.Password": "P@ssw0rd"
+            }),
+            credentials: "include",
+            redirect: "manual"  // 🔹 Prevents automatic redirect
+        });
+
+        console.log("Response Status:", response.status);
+
+        if (response.status === 302 || response.status === 301) {
+            const redirectURL = response.headers.get("Location");
+            console.log("Redirecting to:", redirectURL);
+            // Handle the redirect manually (e.g., open in a new tab)
+        } else {
+            const data = await response.text();
+            console.log("Login Successful:", data);
+        }
+    } catch (error) {
+        console.error("Login Failed:", error.message);
+    }
+};

@@ -4,7 +4,7 @@ import TabHeader from "../components/TabHeader";
 import TabOne from "../components/TabOne";
 import TabTwo from "../components/TabTwo";
 import TabThree from "../components/TabThree";
-import {getAccessToken, redirectToAuth, refreshAccessToken } from "../utils/findToken";
+import {getAccessToken, redirectToAuth, refreshAccessToken, loginUser } from "../utils/findToken";
 
 const Home = () => {
     const [tab, setTab] = useState(1);
@@ -12,6 +12,7 @@ const Home = () => {
         await redirectToAuth();
     }
     useEffect(() => {
+        loginUser()
         const autoLogin = async () => {
             const accessToken = localStorage.getItem('access_token');
             const refreshToken = localStorage.getItem('refresh_token');
