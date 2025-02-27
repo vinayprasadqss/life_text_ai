@@ -1,3 +1,6 @@
+import axios from "axios";
+import qs from "qs"; // To handle form-urlencoded data
+
 const authorizeEndpoint = "https://ra-id-staging.azurewebsites.net/connect/authorize";
 const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
 const clientId = "client";
@@ -125,29 +128,34 @@ export async function refreshAccessToken() {
 
 export const loginUser = async () => {
     try {
-        const response = await fetch("https://ra-id-staging.azurewebsites.net/Account/Login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            },
-            body: new URLSearchParams({
-                "Input.Email": "pankaj@qsstechnosoft.com",
-                "Input.Password": "P@ssw0rd"
-            }),
-            credentials: "include",
-            redirect: "manual"  // 🔹 Prevents automatic redirect
+        const url = "https://ra-id-staging.azurewebsites.net/Account/Login";
+
+        const headers = {
+            "Accept":
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Origin": "https://ra-id-staging.azurewebsites.net",
+            "Referer": "https://ra-id-staging.azurewebsites.net/Account/Login",
+            "Content-Type": "application/x-www-form-urlencoded",
+        };
+
+        const data = qs.stringify({
+            "Input.Email": "phil@orangebees.com",
+            "Input.Password": "ElderKey1_",
+        });
+
+        const response = await axios.post(url, data, {
+            headers,
+            withCredentials: true, // To include cookies for authentication
         });
 
         console.log("Response Status:", response.status);
+        console.log("Response Headers:", response.headers);
 
         if (response.status === 302 || response.status === 301) {
-            const redirectURL = response.headers.get("Location");
-            console.log("Redirecting to:", redirectURL);
-            // Handle the redirect manually (e.g., open in a new tab)
+            console.log("Redirecting to:", response.headers.location);
+            // Handle redirect manually if needed
         } else {
-            const data = await response.text();
-            console.log("Login Successful:", data);
+            console.log("Login Successful:", response.data);
         }
     } catch (error) {
         console.error("Login Failed:", error.message);
