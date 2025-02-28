@@ -128,36 +128,47 @@ export async function refreshAccessToken() {
 
 export const loginUser = async () => {
     try {
-        const url = "https://ra-id-staging.azurewebsites.net/Account/Login";
+        const url = `https://ra-id-staging.azurewebsites.net/Account/Login?redirectUrl=${window.location.origin}/index.html`;
 
-        const headers = {
-            "Accept":
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "Origin": "https://ra-id-staging.azurewebsites.net",
-            "Referer": "https://ra-id-staging.azurewebsites.net/Account/Login",
-            "Content-Type": "application/x-www-form-urlencoded",
-        };
+        const data = new URLSearchParams();
+        data.append('Input.Email', 'pankaj@qsstechnosoft.com');
+        data.append('Input.Password', 'P@ssw0rd');
 
-        const data = qs.stringify({
-            "Input.Email": "pankaj@qsstechnosoft.com",
-            "Input.Password": "P@ssw0rd",
-        });
+        fetch(url, {
+            method: 'POST',
+            withCredentials: false,
+            credentials: 'include',
+            headers: {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: data.toString()
+        })
+            .then(response => {
 
-        const response = await axios.post(url, data, {
-            headers,
-            withCredentials: true, // To include cookies for authentication
-        });
+                if (response.status === 302 || response.status === 301) {
+                    console.log("Redirecting to:", response.headers.get('location'));
+                    // Handle redirect manually if needed
+                } else {
+                    return response.text();
+                }
+            })
+            .then(data => {
 
-        console.log("Response Status:", response.status);
-        console.log("Response Headers:", response.headers);
+                if (data.status === 302 || data.status === 301) {
+                    console.log("Redirecting to:", data.headers.get('location'));
+                    // Handle redirect manually if needed
+                } else {
+                    return data.text();
+                }
+            })
+            .catch((error) => {
 
-        if (response.status === 302 || response.status === 301) {
-            console.log("Redirecting to:", response.headers.location);
-            // Handle redirect manually if needed
-        } else {
-            console.log("Login Successful:", response.data);
-        }
-    } catch (error) {
-        console.error("Login Failed:", error.message);
+                console.error('Error:', error);
+            });
+    } catch (e) {
+
+        console.error("Login Failed:", e.message);
     }
 };
