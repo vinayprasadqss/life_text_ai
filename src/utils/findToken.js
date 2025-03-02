@@ -1,5 +1,6 @@
 import axios from "axios";
-import qs from "qs"; // To handle form-urlencoded data
+import qs from "qs";
+import {decodeJwt} from "./util"; // To handle form-urlencoded data
 
 const authorizeEndpoint = "https://ra-id-staging.azurewebsites.net/connect/authorize";
 const tokenUrl = 'https://ra-id-staging.azurewebsites.net/connect/token';
@@ -128,7 +129,7 @@ export async function refreshAccessToken() {
 
 
 
-export const newTokenGen = async ()=>{
+export const newTokenGen = async (setUserName, setIsLoggedIn)=>{
     fetch("https://ra-id-staging.azurewebsites.net/connect/token", {
         method: "POST",
         headers: {
@@ -148,6 +149,9 @@ export const newTokenGen = async ()=>{
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem("tokenRequestValue", data?.access_token);
+                const decoded = decodeJwt(data.access_token);
+                setUserName(decoded?.name);
+                setIsLoggedIn(true);
                 return data.access_token;
             } else {
                 console.error("Failed to refresh token");

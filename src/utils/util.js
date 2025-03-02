@@ -412,4 +412,20 @@ export const signupUser = async (newToken,name,phone, setNewId  ) => {
     setNewId("121");
   }
 };
+
+
+export function decodeJwt(token) {
+  try {
+    const base64Url = token.split('.')[1]; // Extract payload
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); // Fix Base64 URL encoding
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+
+    return JSON.parse(jsonPayload); // Parse payload as JSON
+  } catch (error) {
+    console.error("Invalid Token", error);
+    return null;
+  }
+}
   

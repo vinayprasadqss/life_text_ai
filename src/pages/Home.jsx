@@ -5,9 +5,12 @@ import TabOne from "../components/TabOne";
 import TabTwo from "../components/TabTwo";
 import TabThree from "../components/TabThree";
 import {getAccessToken, redirectToAuth, refreshAccessToken, loginUser, newTokenGen } from "../utils/findToken";
+import AuthButton from "../components/AuthPopup";
 
 const Home = () => {
     const [tab, setTab] = useState(1);
+    const [username, setUserName] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const handleSubmit3 = async ()=>{
         await redirectToAuth();
     }
@@ -22,19 +25,19 @@ const Home = () => {
             if (code) {
                 console.log("Authorization code found, exchanging for access token...");
                 //await getAccessToken();
-                await newTokenGen();//
+                await newTokenGen(setUserName, setIsLoggedIn);//
             } else if (accessToken) {
                 console.log("Existing access token found, refreshing token...");
                 //await handleTokenRefresh();
-                await newTokenGen();//
+                await newTokenGen(setUserName, setIsLoggedIn);//
             } else if (refreshToken) {
                 console.log("No access token, trying to refresh with refresh token...");
                 //await handleTokenRefresh();
-                await newTokenGen();//
+                await newTokenGen(setUserName, setIsLoggedIn);//
             } else {
                 console.log("No tokens found, redirecting to login...");
                 //await redirectToAuth(); // First-time login
-                await newTokenGen();//
+                await newTokenGen(setUserName, setIsLoggedIn);//
             }
         };
 
@@ -42,9 +45,8 @@ const Home = () => {
 
         // 🔹 Auto-refresh the token every 10 minutes
         const interval = setInterval(async () => {
-            console.log("Refreshing access token...");
             //await handleTokenRefresh();
-            await newTokenGen();//
+            await newTokenGen(setUserName, setIsLoggedIn);//
         }, 20 * 60 * 1000); // Every 10 minutes
 
         return () => clearInterval(interval);
@@ -54,7 +56,6 @@ const Home = () => {
     const handleTokenRefresh = async () => {
         try {
             const newAccessToken = await refreshAccessToken();
-            console.log("newAccessToken",newAccessToken)
             if (!newAccessToken) {
                 console.warn("⚠️ Refresh token expired. Redirecting to login...");
                 localStorage.removeItem("access_token");
@@ -67,9 +68,12 @@ const Home = () => {
         }
     };
 
+
+
     return (
         <>
             <section className="main">
+                <AuthButton setUserName={setUserName} username={username} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
                 {/*<button className={"tokenREqBtn"} onClick={handleSubmit3}>Login</button>*/}
                 <div className="logo">
                     <img src={logo} alt="logo" />
