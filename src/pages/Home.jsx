@@ -4,7 +4,7 @@ import TabHeader from "../components/TabHeader";
 import TabOne from "../components/TabOne";
 import TabTwo from "../components/TabTwo";
 import TabThree from "../components/TabThree";
-import {getAccessToken, redirectToAuth, refreshAccessToken, loginUser } from "../utils/findToken";
+import {getAccessToken, redirectToAuth, refreshAccessToken, loginUser, newTokenGen } from "../utils/findToken";
 
 const Home = () => {
     const [tab, setTab] = useState(1);
@@ -12,7 +12,7 @@ const Home = () => {
         await redirectToAuth();
     }
     useEffect(() => {
-        loginUser()
+        //loginUser()
         const autoLogin = async () => {
             const accessToken = localStorage.getItem('access_token');
             const refreshToken = localStorage.getItem('refresh_token');
@@ -21,16 +21,20 @@ const Home = () => {
 
             if (code) {
                 console.log("Authorization code found, exchanging for access token...");
-                await getAccessToken();
+                //await getAccessToken();
+                await newTokenGen();//
             } else if (accessToken) {
                 console.log("Existing access token found, refreshing token...");
-                await handleTokenRefresh();
+                //await handleTokenRefresh();
+                await newTokenGen();//
             } else if (refreshToken) {
                 console.log("No access token, trying to refresh with refresh token...");
-                await handleTokenRefresh();
+                //await handleTokenRefresh();
+                await newTokenGen();//
             } else {
                 console.log("No tokens found, redirecting to login...");
-                await redirectToAuth(); // First-time login
+                //await redirectToAuth(); // First-time login
+                await newTokenGen();//
             }
         };
 
@@ -39,8 +43,9 @@ const Home = () => {
         // 🔹 Auto-refresh the token every 10 minutes
         const interval = setInterval(async () => {
             console.log("Refreshing access token...");
-            await handleTokenRefresh();
-        }, 10 * 60 * 1000); // Every 10 minutes
+            //await handleTokenRefresh();
+            await newTokenGen();//
+        }, 20 * 60 * 1000); // Every 10 minutes
 
         return () => clearInterval(interval);
     }, []);

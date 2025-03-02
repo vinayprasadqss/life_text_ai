@@ -126,6 +126,37 @@ export async function refreshAccessToken() {
     }
 }
 
+
+
+export const newTokenGen = async ()=>{
+    fetch("https://ra-id-staging.azurewebsites.net/connect/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            "grant_type": "password",
+            "client_id": "mobile",
+            "client_secret": "secret",
+            "username": "pankaj@qsstechnosoft.com",
+            "password": "P@ssw0rd"
+        }).toString()
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem("tokenRequestValue", data?.access_token);
+                return data.access_token;
+            } else {
+                console.error("Failed to refresh token");
+            }
+        })
+        .catch(error => console.error("Login failed:", error));
+}
+
+
 export const loginUser = async () => {
     try {
         const url = `https://ra-id-staging.azurewebsites.net/Account/Login?redirectUrl=${window.location.origin}/index.html`;
@@ -136,8 +167,7 @@ export const loginUser = async () => {
 
         fetch(url, {
             method: 'POST',
-            withCredentials: false,
-            credentials: 'include',
+            withCredentials: true,
             headers: {
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                 "Cache-Control": "no-cache",
@@ -168,7 +198,6 @@ export const loginUser = async () => {
                 console.error('Error:', error);
             });
     } catch (e) {
-
         console.error("Login Failed:", e.message);
     }
 };

@@ -29,7 +29,7 @@ const TabOne = ({setTab}) => {
         try {
             const token = await recaptchaRef.current.executeAsync(); // Invisible reCAPTCHA
             recaptchaRef.current.reset(); // Reset after execution
-            console.log("Recaptcha Token:", token); // Log the token for debugging purposes
+            //console.log("Recaptcha Token:", token); // Log the token for debugging purposes
 
             // Here, instead of backend verification, we check if the token exists
             if (token) {
