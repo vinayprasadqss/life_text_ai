@@ -161,7 +161,7 @@ const TabOne = ({setTab}) => {
                     elder: {
                         name: name,
                         timeZone: "Eastern Standard Time",
-                        phoneNumber: elderPhNumAuto,
+                        phoneNumber: phone,
                     },
                     champion: {
                         phoneNumber: championPhNumAuto,

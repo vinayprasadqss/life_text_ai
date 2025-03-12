@@ -121,10 +121,10 @@ const TabTwo = ({setTab}) => {
             elder: {
               name: friendName,
               timeZone: "Eastern Standard Time",
-              phoneNumber: elderPhNumAuto,
+              phoneNumber: friendMobile,
             },
             champion: {
-              phoneNumber: championPhNumAuto,
+              phoneNumber: phone,
             },
           },
           {
