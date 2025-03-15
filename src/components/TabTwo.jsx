@@ -179,6 +179,7 @@ const TabTwo = ({setTab}) => {
     const payload = {
       message: msg,
       workflowType: 5,
+      recipientRoles: 4,
       followUp: 0,
       isEnabled: true,
       promptSchedule,

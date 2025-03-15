@@ -178,7 +178,6 @@ const TabOne = ({setTab}) => {
 
             console.log("✅ Success: vinay3", response.data);
             setNewId(response.data.id);
-            //Toast("Success", "Congratulations, your message has been scheduled!"); // Success toast
         } catch (error) {
             if (error.response) {
                 const { status } = error.response;
@@ -219,6 +218,7 @@ const TabOne = ({setTab}) => {
         const payload = {
             message: msg,
             workflowType: 5,
+            recipientRoles: 4,
             followUp: 0,
             isEnabled: true,
             promptSchedule,
