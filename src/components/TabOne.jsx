@@ -214,7 +214,7 @@ const TabOne = ({setTab}) => {
         }
 
         const payload = {
-            message: msg,
+            message: `Hi ${name}, ${msg}`,
             workflowType: 5,
             recipientRoles: 4,
             followUp: 0,

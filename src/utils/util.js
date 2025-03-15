@@ -212,47 +212,78 @@ export const parseDaysInput = (input) => {
 
   switch (normalizedInput) {
     case "monday":
+    case "monday,":
     case "m":
+    case "m,":
     case "mon":
+    case "mon,":
       return "Monday";
     case "tuesday":
+    case "tuesday,":
     case "t":
+    case "t,":
     case "tue":
+    case "tue,":
     case "tues":
+    case "tues,":
       return "Tuesday";
     case "wednesday":
+    case "wednesday,":
     case "w":
+    case "w,":
     case "we":
+    case "we,":
     case "wed":
+    case "wed,":
       return "Wednesday";
     case "thursday":
+    case "thursday,":
     case "th":
+    case "th,":
     case "thu":
+    case "thu,":
     case "thur":
+    case "thur,":
       return "Thursday";
     case "friday":
+    case "friday,":
     case "f":
+    case "f,":
     case "fr":
+    case "fr,":
     case "fri":
+    case "fri,":
       return "Friday";
     case "saturday":
+    case "saturday,":
     case "sat":
+    case "sat,":
     case "sa":
+    case "sa,":
       return "Saturday";
     case "sunday":
+    case "sunday,":
     case "s":
+    case "s,":
     case "su":
+    case "su,":
     case "sun":
+    case "sun,":
       return "Sunday";
     case "everyday":
+    case "everyday,":
       return "All 7 days of the week";
     case "week":
+    case "week,":
       return "All 7 days of the week";
     case "weekdays":
+    case "weekdays,":
       return "Monday to Friday";
     case "weekends":
+    case "weekends,":
       return "Saturday & Sunday";
     case "today":
+    case "today,":
       return new Date().toDateString(); // Returns the current date as a string
 
     default:
