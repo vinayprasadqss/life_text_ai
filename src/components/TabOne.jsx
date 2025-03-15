@@ -129,9 +129,7 @@ const TabOne = ({setTab}) => {
     }
     };
     const handleSubmit3 = async ()=>{
-      await redirectToAuth();
-
-      await getAccessToken();
+        console.log(formatTimezone(timeZone))
     }
 
     const signupUser = async () => {

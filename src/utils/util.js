@@ -203,7 +203,7 @@ export const parseDaysInput = (input) => {
 
       // Handle day ranges like mon-tue, tue-wed, etc., and their reverse forms
       if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput)) {
- 
+
 
         const [start, end] = normalizedInput
             .split("-")
@@ -216,7 +216,7 @@ export const parseDaysInput = (input) => {
 
       // Handle reverse day ranges like tue-mon
       if (/^(mon|tue|wed|thu|fri|sat|sun)-(mon|tue|wed|thu|fri|sat|sun)$/i.test(normalizedInput.split("-").reverse().join("-"))) {
- 
+
 
         const [start, end] = normalizedInput
             .split("-")
@@ -318,7 +318,7 @@ export const validatePhoneNumber = (phoneNumber) => {
 
 export const validateField = (field, value) => {
     let error = "";
-  
+
     switch (field) {
       case "name":
         if (!value.trim()) error = "Please enter your name.";
@@ -370,11 +370,11 @@ export const validateField = (field, value) => {
       case "timezone":
         if (!value.trim()) error = "Please select a time zone.";
         break;
-  
+
       default:
         break;
     }
-  
+
     return error;
   };
 
@@ -414,12 +414,21 @@ export const signupUser = async (newToken,name,phone, setNewId  ) => {
   }
 };
 
+const StandardTimeMappings = {
+  "Eastern Time": "Eastern Standard Time",
+  "Central Time": "Central Standard Time",
+  "Mountain Time": "Mountain Standard Time",
+  "Arizona Time": "US Mountain Standard Time",
+  "Pacific Time": "Pacific Standard Time",
+  "Alaska Time": "Alaskan Standard Time",
+  "Hawaii Time": "Hawaiian Standard Time",
+};
+
+// Function to get the Standard Time name using value
 export function formatTimezone(value) {
   const timezone = Timezones.find(tz => tz.value === value);
-  if (!timezone) return "Unknown Timezone"; // Handle invalid input
-
-  // Correcting the format so "Standard Time" is added properly
-  return `US ${timezone.label.replace(" Time", "")} Standard Time`;
+  return timezone ? StandardTimeMappings[timezone.label] : "Unknown Standard Time";
 }
+
 
   
