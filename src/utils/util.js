@@ -100,6 +100,7 @@ export function transformPayloadSingle(timeZone, dayOrDate, times) {
 }
 
 export function transformPayloadDouble(timeZone, days, times) {
+  console.log(timeZone, days, times)
   // Validate the timezone input
   if (!moment.tz.zone(timeZone)) {
     throw new Error("Invalid timezone input. Please provide a valid IANA timezone.");
@@ -114,7 +115,7 @@ export function transformPayloadDouble(timeZone, days, times) {
       Thursday: 4,
       Friday: 5,
       Saturday: 6,
-      Sunday: 7,
+      Sunday: 0,
     };
     return daysMap[dayName];
   };
@@ -124,17 +125,29 @@ export function transformPayloadDouble(timeZone, days, times) {
 
   // Handle specific ranges and common patterns
   if (days === "Saturday & Sunday") {
-    targetDays = [6, 7];
+    targetDays = [6, 0];
   } else if (days === "All 7 days of the week") {
-    targetDays = [1, 2, 3, 4, 5, 6, 7];
+    targetDays = [0, 1, 2, 3, 4, 5, 6];
   } else if (days.includes("to")) {
-    // Handle ranges like "Monday to Thursday"
+    // Handle ranges like "Monday to Thursday" or "Saturday to Monday"
     const [startDay, endDay] = days.split(" to ").map(day => dayNameToIsoWeekday(day.trim()));
-    // Create an array of all days in the range
-    for (let i = startDay; i <= endDay; i++) {
-      targetDays.push(i);
+
+    if (startDay <= endDay) {
+      // Normal case: Loop forward (e.g., Monday to Friday)
+      for (let i = startDay; i <= endDay; i++) {
+        targetDays.push(i);
+      }
+    } else {
+      // Wrap-around case: Loop to Saturday (6), then from Sunday (0) to endDay
+      for (let i = startDay; i <= 6; i++) {
+        targetDays.push(i);
+      }
+      for (let i = 0; i <= endDay; i++) {
+        targetDays.push(i);
+      }
     }
-  } else if (days.includes(",")) {
+  }
+  else if (days.includes(",")) {
     // Handle lists like "Monday, Wednesday, Friday"
     targetDays = days.split(",").map(day => dayNameToIsoWeekday(day.trim()));
   } else {
@@ -157,37 +170,37 @@ export function transformPayloadDouble(timeZone, days, times) {
   let startDate = null;
   let endDate = null;
 
-  for (let offset = 0; offset < 7; offset++) {
-    const potentialDate = currentDate.clone().add(offset, "days");
-    if (targetDays.includes(potentialDate.isoWeekday())) {
-      if (!startDate) {
-        startDate = moment.tz(
-            `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
-            "YYYY-MM-DD HH:mm",
-            timeZone
-        );
-      }
-      if (potentialDate.isoWeekday() === targetDays[targetDays.length - 1]) {
-        endDate = moment.tz(
-            `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
-            "YYYY-MM-DD HH:mm",
-            timeZone
-        );
-        break;
-      }
-    }
-  }
-
-  if (!startDate || !endDate) {
-    throw new Error("Could not determine startDate or endDate.");
-  }
+  // for (let offset = 0; offset < 7; offset++) {
+  //   const potentialDate = currentDate.clone().add(offset, "days");
+  //   if (targetDays.includes(potentialDate.isoWeekday())) {
+  //     if (!startDate) {
+  //       startDate = moment.tz(
+  //           `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
+  //           "YYYY-MM-DD HH:mm",
+  //           timeZone
+  //       );
+  //     }
+  //     if (potentialDate.isoWeekday() === targetDays[targetDays.length - 1]) {
+  //       endDate = moment.tz(
+  //           `${potentialDate.format("YYYY-MM-DD")} ${inputTime.format("HH:mm")}`,
+  //           "YYYY-MM-DD HH:mm",
+  //           timeZone
+  //       );
+  //       break;
+  //     }
+  //   }
+  // }
+  //
+  // if (!startDate || !endDate) {
+  //   throw new Error("Could not determine startDate or endDate.");
+  // }
 
   // Construct the transformed payload
   return {
     //date: startDate.toISOString(),
-    timeOfDay: startDate.format("HH:mm:ss"),
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    timeOfDay: moment(times, "h:mm A").format("HH:mm"),
+    startDate: null, //startDate.toISOString()
+    endDate: null, //endDate.toISOString()
     daysOfWeek: targetDays,
     //isEnabled: true,
     recipientRoles: 4
@@ -233,8 +246,10 @@ export const parseDaysInput = (input) => {
       return "Sunday";
     case "everyday":
       return "All 7 days of the week";
+    case "week":
+      return "All 7 days of the week";
     case "weekdays":
-      return "Monday - Friday";
+      return "Monday to Friday";
     case "weekends":
       return "Saturday & Sunday";
     case "today":

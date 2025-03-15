@@ -171,7 +171,7 @@ const TabTwo = ({setTab}) => {
     const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
 
     let promptSchedule;
-    if (days.includes("to")) {
+    if (days.includes("to")||days=="All 7 days of the week"||days=="Saturday & Sunday"||days.includes(","))  {
       promptSchedule = transformPayloadDouble(timeZone, days, time);
     } else {
       promptSchedule = transformPayloadSingle(timeZone, days, time);
@@ -206,7 +206,7 @@ const TabTwo = ({setTab}) => {
         console.error("API Error:", response.data);
       }
     } catch (error) {
-      Toast("Error", error.response || error.message ||"Something went wrong.", "error");
+      Toast("Error",  error?.response?.data.errors[0].description || error?.response || error?.message ||"Something went wrong.", "error");
       console.error("API Error:", error.response || error.message);
     } finally {
       setLoading(false);

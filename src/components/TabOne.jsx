@@ -207,7 +207,7 @@ const TabOne = ({setTab}) => {
         const url = `https://ra-user-staging.azurewebsites.net/v1/journeys/${newId}/prompts`;
 
         let promptSchedule;
-        if (days.includes("to")) {
+        if (days.includes("to")||days=="All 7 days of the week"||days=="Saturday & Sunday"||days.includes(",")) {
             promptSchedule = transformPayloadDouble(timeZone, days, time);
         } else {
             promptSchedule = transformPayloadSingle(timeZone, days, time);
