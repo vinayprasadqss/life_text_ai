@@ -242,7 +242,8 @@ const TabOne = ({setTab}) => {
                 console.error("API Error:", response.data);
             }
         } catch (error) {
-            Toast("Error", error.response || error.message ||"Something went wrong.", "error");
+            console.log("error vinay",error);
+            Toast("Error",  error?.response?.data.errors[0].description || error?.response || error?.message ||"Something went wrong.", "error");
             console.error("API Error:", error.response || error.message);
         } finally {
             setLoading(false);

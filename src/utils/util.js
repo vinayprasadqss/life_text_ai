@@ -16,39 +16,86 @@ const daysMap = {
   sat: "Saturday",
   sun: "Sunday",
 };
-export function transformPayloadSingle(timeZone, days, times) {
+export function transformPayloadSingle(timeZone, dayOrDate, times) {
   // Map common timezone names to IANA timezone names
   const timezoneMap = {
-    "Eastern Standard Time": "America/New_York"
+    "Eastern Standard Time": "America/New_York",
+    "Central Standard Time": "America/Chicago",
+    "Mountain Standard Time": "America/Denver",
+    "US Mountain Standard Time": "America/Phoenix",
+    "Pacific Standard Time": "America/Los_Angeles",
+    "Alaskan Standard Time": "America/Anchorage",
+    "Hawaiian Standard Time": "Pacific/Honolulu"
   };
 
-  // Use the mapped timezone or the provided one
+  // Get the mapped timezone or use the given one
   const timeZone1 = timezoneMap[timeZone] || timeZone;
+  console.log("Given Timezone:", timeZone, "Mapped Timezone:", timeZone1);
 
-  // Get the current date in the target timezone
-  const currentDate = moment().tz(timeZone);
-
-  // Determine the next occurrence of the specified day (e.g., Monday)
-  const targetDay = moment().tz(timeZone).day(days);
-
-  // If today is the day but the time has passed, move to next week's occurrence
-  if (targetDay.isBefore(currentDate, 'day') ||
-      (targetDay.isSame(currentDate, 'day') && moment(times, "h:mm A").isBefore(currentDate))) {
-    targetDay.add(1, 'weeks');
+  if (!moment.tz.zone(timeZone1)) {
+    console.error("Invalid Timezone:", timeZone1);
+    return { error: "Invalid timezone provided" };
   }
 
-  // Combine the target day and time
-  const dateTime = moment.tz(
-      `${targetDay.format('YYYY-MM-DD')} ${times}`,
-      "YYYY-MM-DD h:mm A",
-      timeZone1
-  );
+  let targetMoment;
+
+  // Get the current date-time **IN THE SELECTED TIMEZONE** (not system time)
+  const currentMoment = moment().tz(timeZone1);
+  console.log("Current Time in Selected Timezone:", currentMoment.format());
+
+  // Check if the input is a weekday name (e.g., "Saturday") or a full date
+  if (moment.weekdays().includes(dayOrDate)) {
+    // Convert day name (e.g., "Sunday") to a weekday index
+    const targetDayIndex = moment().day(dayOrDate).day();
+
+    // Set target date in selected timezone
+    targetMoment = currentMoment.clone().day(targetDayIndex);
+
+    // Get the input time in hours and minutes
+    const inputTime = moment(times, "h:mm A");
+
+    // Set the time in the target moment (to be 10:00 AM in that timezone)
+    targetMoment.set({
+      hour: inputTime.hours(),
+      minute: inputTime.minutes(),
+      second: 0,
+      millisecond: 0
+    });
+
+    console.log("Target Date Before Adjustment:", targetMoment.format());
+
+    // If today is the selected day, but the time has already passed **IN THAT TIMEZONE**, move to next week
+    if (targetMoment.isSame(currentMoment, "day") && targetMoment.isBefore(currentMoment)) {
+      targetMoment.add(7, "days");
+    }
+
+    // If the target day is **before** the current date (e.g., today is Saturday, but input is Friday), move to next week
+    if (targetMoment.isBefore(currentMoment, "day")) {
+      targetMoment.add(7, "days");
+    }
+  } else {
+    // Assume input is a full date (e.g., "Sat Mar 15 2025") and parse it in the given timezone
+    targetMoment = moment.tz(dayOrDate, "ddd MMM DD YYYY", timeZone1);
+
+    // If a time is provided, set the time correctly
+    if (times) {
+      const inputTime = moment(times, "h:mm A");
+      targetMoment.set({
+        hour: inputTime.hours(),
+        minute: inputTime.minutes(),
+        second: 0,
+        millisecond: 0
+      });
+    }
+  }
+
+  console.log("Final Computed DateTime:", targetMoment.format());
 
   // Construct the transformed payload
   return {
-      date: dateTime.toISOString(),
-      timeOfDay: dateTime.format('HH:mm:ss'),
-      isEnabled: true
+    date: targetMoment.toISOString(),
+    timeOfDay: targetMoment.format("HH:mm:ss"),
+    isEnabled: true
   };
 }
 
