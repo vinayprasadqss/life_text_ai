@@ -241,7 +241,7 @@ export const parseTimeInput = (input) => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
-    return { msg: "", value: formatTo12Hour(hours, minutes) };
+    return { msg: "", value: formatTo12Hour(hours, minutes+1) };
   }
 
   // Match patterns like "8am", "8:00 am", "08:00 AM", "8:3"
