@@ -2,6 +2,7 @@ import {
   isValidPhoneNumber,
   validatePhoneNumberLength,
 } from "libphonenumber-js";
+import Timezones from './../constants/zone';
 import moment from 'moment-timezone';
 import axios from "axios";
 
@@ -412,4 +413,13 @@ export const signupUser = async (newToken,name,phone, setNewId  ) => {
     setNewId("121");
   }
 };
+
+export function formatTimezone(value) {
+  const timezone = Timezones.find(tz => tz.value === value);
+  if (!timezone) return "Unknown Timezone"; // Handle invalid input
+
+  // Correcting the format so "Standard Time" is added properly
+  return `US ${timezone.label.replace(" Time", "")} Standard Time`;
+}
+
   

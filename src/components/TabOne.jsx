@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Timezones from "../constants/zone";
-import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble } from "../utils/util";
+import { parseDaysInput, parseTimeInput, validateField, transformPayloadSingle, transformPayloadDouble, formatTimezone } from "../utils/util";
 import { redirectToAuth, getAccessToken } from "../utils/findToken";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -160,7 +160,7 @@ const TabOne = ({setTab}) => {
                 {
                     elder: {
                         name: name,
-                        timeZone: "Eastern Standard Time",
+                        timeZone: formatTimezone(timeZone),
                         phoneNumber: phone,
                     },
                     champion: {

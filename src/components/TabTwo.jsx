@@ -5,7 +5,8 @@ import {
   parseTimeInput,
   transformPayloadDouble,
   transformPayloadSingle,
-  validateField
+  validateField,
+  formatTimezone
 } from "../utils/util";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
@@ -120,7 +121,7 @@ const TabTwo = ({setTab}) => {
           {
             elder: {
               name: friendName,
-              timeZone: "Eastern Standard Time",
+              timeZone: formatTimezone(timeZone),
               phoneNumber: friendMobile,
             },
             champion: {
